@@ -1,0 +1,234 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Experiment catalogue — INFORMS 2026 DMS Data Challenge</title>
+<style>
+.viz-root{
+  color-scheme:light;
+  --surface-1:#fcfcfb; --surface-2:#f4f3f0; --line:#dedcd6;
+  --text-primary:#0b0b0b; --text-secondary:#52514e; --text-muted:#8a8880;
+  --series-1:#2a78d6; --series-2:#eb6834; --series-3:#1baf7a;
+  --grid:#e7e5df;
+}
+@media (prefers-color-scheme:dark){:root:where(:not([data-theme=light])) .viz-root{
+  color-scheme:dark;
+  --surface-1:#1a1a19; --surface-2:#232322; --line:#3a3a37;
+  --text-primary:#fff; --text-secondary:#c3c2b7; --text-muted:#8f8e85;
+  --series-1:#3987e5; --series-2:#d95926; --series-3:#199e70;
+  --grid:#2e2e2b;
+}}
+:root[data-theme=dark] .viz-root{
+  color-scheme:dark;
+  --surface-1:#1a1a19; --surface-2:#232322; --line:#3a3a37;
+  --text-primary:#fff; --text-secondary:#c3c2b7; --text-muted:#8f8e85;
+  --series-1:#3987e5; --series-2:#d95926; --series-3:#199e70;
+  --grid:#2e2e2b;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--surface-1)}
+.viz-root{background:var(--surface-1);color:var(--text-primary);
+  font:14px/1.5 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  padding:28px 22px 56px;max-width:1180px;margin:0 auto}
+h1{font-size:22px;margin:0 0 4px;letter-spacing:-.01em}
+.sub{color:var(--text-secondary);margin:0 0 22px;font-size:13.5px}
+h2{font-size:15px;margin:30px 0 3px;letter-spacing:-.005em}
+.note{color:var(--text-secondary);font-size:12.5px;margin:0 0 12px;max-width:78ch}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:6px}
+.tile{background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+.tile .v{font-size:23px;font-weight:650;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.tile .k{color:var(--text-secondary);font-size:11.5px;margin-top:2px}
+.card{background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:14px 16px 10px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--text-secondary);margin:2px 0 8px}
+.legend i{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:6px;vertical-align:1px}
+svg{display:block;width:100%;overflow:visible}
+.grid line{stroke:var(--grid);stroke-width:1}
+.ax{fill:var(--text-muted);font-size:10.5px}
+.axlab{fill:var(--text-secondary);font-size:11.5px}
+.dlab{fill:var(--text-secondary);font-size:10px}
+.bar{fill:var(--series-1)}
+.tip{position:fixed;pointer-events:none;background:var(--surface-1);color:var(--text-primary);
+  border:1px solid var(--line);border-radius:7px;padding:7px 9px;font-size:12px;opacity:0;
+  transition:opacity .1s;box-shadow:0 4px 14px rgba(0,0,0,.14);z-index:9;max-width:270px}
+.tip b{font-weight:640}
+.ctl{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0 8px}
+input,select{background:var(--surface-1);color:var(--text-primary);border:1px solid var(--line);
+  border-radius:6px;padding:6px 9px;font:inherit;font-size:13px}
+input{min-width:220px}
+table{border-collapse:collapse;width:100%;font-size:12.5px;font-variant-numeric:tabular-nums}
+th,td{text-align:right;padding:5px 7px;border-bottom:1px solid var(--line);white-space:nowrap}
+th:nth-child(-n+4),td:nth-child(-n+4){text-align:left}
+th{color:var(--text-secondary);font-weight:600;cursor:pointer;user-select:none;position:sticky;top:0;
+  background:var(--surface-1);font-size:11.5px}
+th:hover{color:var(--text-primary)}
+.wrap{max-height:480px;overflow:auto;border:1px solid var(--line);border-radius:8px}
+tr.ship td{background:color-mix(in srgb,var(--series-1) 9%,transparent)}
+.chip{display:inline-block;background:var(--surface-1);border:1px solid var(--line);border-radius:4px;
+  padding:0 5px;font-size:10.5px;color:var(--text-secondary)}
+.dim{color:var(--text-muted)}
+</style>
+<div class="viz-root">
+<h1>Experiment catalogue</h1>
+<p class="sub">INFORMS 2026 DMS Data Challenge — every model we ran, classified by the contrast it tested.</p>
+<div class="tiles" id="tiles"></div>
+
+<h2>A member's value is not its score</h2>
+<p class="note">Each object by how good it is alone (horizontal) against how much its errors resemble
+the shipped bracket (vertical). <b>The useful direction is down, not left.</b> The three stock-flow
+models are the weakest in the set and the least correlated — and no substitute survived a replacement
+test. Hover any point.</p>
+<div class="card">
+  <div class="legend">
+    <span><i style="background:var(--series-1)"></i>bracket member (shipped)</span>
+    <span><i style="background:var(--series-2)"></i>anchor <span class="dim">— 50% of the forecast</span></span>
+    <span><i style="background:var(--series-3)"></i>tested, not admitted</span>
+  </div>
+  <svg id="scatter" viewBox="0 0 900 400" role="img" aria-label="Solo RMSE against error correlation"></svg>
+</div>
+
+<h2>Where the effort went</h2>
+<p class="note">Runs per intervention family. Bar length is the number of controlled runs; the label
+gives the best out-of-fold score reached inside that family. Families are not comparable on
+&ldquo;best&rdquo; alone — each starts from a different control.</p>
+<div class="card"><svg id="fam" viewBox="0 0 900 300" role="img" aria-label="Runs per family"></svg></div>
+
+<h2>What 219 runs actually look like</h2>
+<p class="note">Distribution of every scored run, with the reference points marked. Most of the
+distribution sits between the naive baselines and the final model: the search space is narrow, which
+is why selection discipline mattered more than raw exploration.</p>
+<div class="card"><svg id="hist" viewBox="0 0 900 250" role="img" aria-label="Score distribution"></svg></div>
+
+<h2>Every run</h2>
+<p class="note">Sortable and filterable. Shipped members are highlighted. <span class="dim">&mdash;
+means the run errored, diverged, or predates the standardised scorer.</span></p>
+<div class="ctl">
+  <input id="q" placeholder="filter by code, name, mechanism, objective…" aria-label="Filter runs">
+  <select id="fam-f" aria-label="Filter by family"><option value="">all families</option></select>
+  <label style="font-size:12.5px;color:var(--text-secondary)"><input type="checkbox" id="onlyship" style="min-width:auto"> shipped only</label>
+  <span id="count" class="dim" style="font-size:12.5px"></span>
+</div>
+<div class="wrap"><table id="tbl"><thead><tr>
+  <th data-k="code">code</th><th data-k="name">experiment</th><th data-k="family">family</th>
+  <th data-k="mech">mechanism</th><th data-k="rmse">RMSE</th><th data-k="h0">t+1</th>
+  <th data-k="h1">t+6</th><th data-k="h2">t+24</th><th data-k="h3">t+48</th>
+  <th data-k="mae">MAE</th><th data-k="secs">sec</th>
+</tr></thead><tbody></tbody></table></div>
+<div class="tip" id="tip"></div>
+</div>
+<script>
+const tip=document.getElementById('tip');
+const show=(e,h)=>{tip.innerHTML=h;tip.style.opacity=1;
+  const p=12,w=tip.offsetWidth,x=Math.min(e.clientX+p,innerWidth-w-8);
+  tip.style.left=x+'px';tip.style.top=Math.min(e.clientY+p,innerHeight-tip.offsetHeight-8)+'px';};
+const hide=()=>tip.style.opacity=0;
+const f5=v=>v==null?'—':v.toFixed(5);
+const SV='http://www.w3.org/2000/svg';
+const el=(n,a={})=>{const e=document.createElementNS(SV,n);for(const k in a)e.setAttribute(k,a[k]);return e;};
+
+fetch('dashboard_data.json').then(r=>r.json()).then(D=>{
+  const B=D.baselines;
+  document.getElementById('tiles').innerHTML=[
+    [D.meta.n,'runs recorded'],[D.meta.scored,'carry a score'],
+    [f5(B.final),'final ensemble'],[f5(B.anchor),'best single model'],
+    [f5(B.persistence),'decayed persistence'],[f5(B.zeros),'all-zeros']
+  ].map(([v,k])=>`<div class="tile"><div class="v">${v}</div><div class="k">${k}</div></div>`).join('');
+
+  /* ---- scatter: quality vs diversity ---- */
+  {const s=document.getElementById('scatter'),W=900,H=400,m={t:14,r:120,b:44,l:62};
+   const P=D.diversity,xs=P.map(p=>p.rmse),ys=P.map(p=>p.corr);
+   const x0=Math.min(...xs)*0.995,x1=Math.max(...xs)*1.005,y0=Math.min(...ys)-.012,y1=Math.max(...ys)+.012;
+   const X=v=>m.l+(v-x0)/(x1-x0)*(W-m.l-m.r), Y=v=>H-m.b-(v-y0)/(y1-y0)*(H-m.t-m.b);
+   const g=el('g',{class:'grid'});
+   for(let i=0;i<=4;i++){const yy=y0+(y1-y0)*i/4;g.append(el('line',{x1:m.l,x2:W-m.r,y1:Y(yy),y2:Y(yy)}));
+     const t=el('text',{x:m.l-9,y:Y(yy)+3.5,class:'ax','text-anchor':'end'});t.textContent=yy.toFixed(2);s.append(t);}
+   for(let i=0;i<=4;i++){const xx=x0+(x1-x0)*i/4;const t=el('text',{x:X(xx),y:H-m.b+17,class:'ax','text-anchor':'middle'});
+     t.textContent=xx.toFixed(4);s.append(t);}
+   s.prepend(g);
+   const c={bracket:'var(--series-1)',anchor:'var(--series-2)',tested:'var(--series-3)'};
+   const placed=[];
+   P.forEach(p=>{const cx=X(p.rmse),cy=Y(p.corr),big=p.group!=='tested';
+     const o=el('circle',{cx,cy,r:big?6:5,fill:c[p.group],stroke:'var(--surface-2)','stroke-width':2});
+     o.style.cursor='pointer';
+     o.addEventListener('mousemove',e=>show(e,`<b>${p.label}</b><br>solo RMSE ${f5(p.rmse)}<br>error corr ${p.corr.toFixed(3)}<br><span class="chip">${p.group}</span>`));
+     o.addEventListener('mouseleave',hide);s.append(o);
+     if(big||p.corr<0.79||p.rmse>0.0108){placed.push({p,cx,cy});}});
+   /* place labels last, nudging any that would collide with one already placed */
+   const put=[];
+   placed.sort((a,b)=>a.cy-b.cy).forEach(({p,cx,cy})=>{
+     let lx=cx+9,ly=cy+3.5,anchor='start';
+     for(let k=0;k<14;k++){
+       const clash=put.some(q=>Math.abs(q.ly-ly)<11&&Math.abs(q.lx-lx)<86);
+       if(!clash)break;
+       if(k%2===0){lx=cx-9;anchor='end';}else{lx=cx+9;anchor='start';ly+=11;}
+     }
+     put.push({lx,ly});
+     const t=el('text',{x:lx,y:ly,class:'dlab','text-anchor':anchor,
+       stroke:'var(--surface-2)','stroke-width':3.2,'paint-order':'stroke fill'});
+     t.textContent=p.label;s.append(t);});
+   const xl=el('text',{x:(m.l+W-m.r)/2,y:H-6,class:'axlab','text-anchor':'middle'});
+   xl.textContent='solo RMSE  (lower = better model)';s.append(xl);
+   const yl=el('text',{x:-(m.t+H-m.b)/2,y:15,class:'axlab','text-anchor':'middle',transform:'rotate(-90)'});
+   yl.textContent='mean error correlation with the bracket';s.append(yl);}
+
+  /* ---- family bars ---- */
+  {const s=document.getElementById('fam'),W=900,H=300,m={t:8,r:150,b:30,l:118};
+   const F=D.families.filter(f=>f.runs>0),mx=Math.max(...F.map(f=>f.runs));
+   const bh=(H-m.t-m.b)/F.length, X=v=>v/mx*(W-m.l-m.r);
+   F.forEach((f,i)=>{const y=m.t+i*bh,h=Math.min(bh-6,22);
+     const r=el('rect',{x:m.l,y:y+(bh-h)/2,width:Math.max(2,X(f.runs)),height:h,rx:4,class:'bar'});
+     r.style.cursor='pointer';
+     r.addEventListener('mousemove',e=>show(e,`<b>${f.family}</b><br>${f.runs} runs<br>best ${f5(f.best)}<br>median ${f5(f.median)}<br>${f.shipped} shipped`));
+     r.addEventListener('mouseleave',hide);s.append(r);
+     const lb=el('text',{x:m.l-9,y:y+bh/2+4,class:'axlab','text-anchor':'end'});lb.textContent=f.family;s.append(lb);
+     const vl=el('text',{x:m.l+X(f.runs)+8,y:y+bh/2+4,class:'dlab'});
+     vl.textContent=`${f.runs} run${f.runs>1?'s':''} · best ${f5(f.best)}`;s.append(vl);});}
+
+  /* ---- histogram ---- */
+  {const s=document.getElementById('hist'),W=900,H=250,m={t:26,r:20,b:40,l:46};
+   const v=D.runs.map(r=>r.rmse).filter(x=>x!=null&&x<0.03).sort((a,b)=>a-b);
+   const lo=0.008,hi=0.014,nb=36,bw=(hi-lo)/nb,bins=new Array(nb).fill(0);
+   let over=0;
+   v.forEach(x=>{if(x>=hi){over++;return;}const i=Math.max(0,Math.floor((x-lo)/bw));bins[i]++;});
+   const mx=Math.max(...bins),X=x=>m.l+(x-lo)/(hi-lo)*(W-m.l-m.r),Y=c=>H-m.b-c/mx*(H-m.t-m.b);
+   bins.forEach((c,i)=>{if(!c)return;const x=X(lo+i*bw),w=(W-m.l-m.r)/nb-2;
+     const r=el('rect',{x,y:Y(c),width:w,height:H-m.b-Y(c),rx:3,class:'bar'});
+     r.style.cursor='pointer';
+     r.addEventListener('mousemove',e=>show(e,`<b>${c} run${c>1?'s':''}</b><br>RMSE ${(lo+i*bw).toFixed(4)}–${(lo+(i+1)*bw).toFixed(4)}`));
+     r.addEventListener('mouseleave',hide);s.append(r);});
+   const refs=[[B.final,'final'],[B.anchor,'best single'],[B.persistence,'persistence']];
+   let lastx=-99,row=0;
+   refs.sort((a,b)=>a[0]-b[0]).forEach(([x,l])=>{
+     const px=X(x); row=(px-lastx<74)?1-row:0; lastx=px;
+     s.append(el('line',{x1:px,x2:px,y1:m.t-4-row*11,y2:H-m.b,stroke:'var(--series-2)','stroke-width':2,'stroke-dasharray':'3 3'}));
+     const t=el('text',{x:px,y:m.t-9-row*11,class:'dlab','text-anchor':'middle',fill:'var(--series-2)',
+       stroke:'var(--surface-2)','stroke-width':3,'paint-order':'stroke fill'});
+     t.textContent=l;s.append(t);});
+   if(over){const t=el('text',{x:W-m.r,y:m.t-9,class:'dlab','text-anchor':'end',fill:'var(--text-muted)'});
+     t.textContent=`${over} run${over>1?'s':''} above ${hi.toFixed(3)} · all-zeros ${B.zeros.toFixed(5)} off scale`;s.append(t);}
+   for(let i=0;i<=5;i++){const xx=lo+(hi-lo)*i/5;const t=el('text',{x:X(xx),y:H-m.b+17,class:'ax','text-anchor':'middle'});
+     t.textContent=xx.toFixed(3);s.append(t);}
+   const xl=el('text',{x:(m.l+W-m.r)/2,y:H-6,class:'axlab','text-anchor':'middle'});
+   xl.textContent='out-of-fold RMSE';s.append(xl);}
+
+  /* ---- table ---- */
+  const rows=D.runs.map(r=>({...r,h0:r.h[0],h1:r.h[1],h2:r.h[2],h3:r.h[3]}));
+  const sel=document.getElementById('fam-f');
+  [...new Set(rows.map(r=>r.family))].sort().forEach(f=>{const o=document.createElement('option');o.value=f;o.textContent=f;sel.append(o);});
+  let sk='rmse',sd=1;   /* best score first; clicking a header toggles direction */
+  const draw=()=>{const q=document.getElementById('q').value.toLowerCase(),ff=sel.value,
+      os=document.getElementById('onlyship').checked;
+    let r=rows.filter(x=>(!ff||x.family===ff)&&(!os||x.shipped)&&
+      (!q||`${x.code} ${x.name} ${x.mech} ${x.obj}`.toLowerCase().includes(q)));
+    r.sort((a,b)=>{const u=a[sk],v=b[sk];
+      if(u==null&&v==null)return 0; if(u==null)return 1; if(v==null)return -1;
+      return (typeof u==='string'?u.localeCompare(v):u-v)*sd;});
+    document.querySelector('#tbl tbody').innerHTML=r.map(x=>`<tr class="${x.shipped?'ship':''}">
+      <td><b>${x.code}</b>${x.shipped?' <span class="chip">shipped</span>':''}</td>
+      <td>${x.name}</td><td>${x.family}</td><td>${x.mech}</td>
+      <td>${f5(x.rmse)}</td><td>${f5(x.h0)}</td><td>${f5(x.h1)}</td><td>${f5(x.h2)}</td>
+      <td>${f5(x.h3)}</td><td>${x.mae==null?'—':x.mae.toFixed(5)}</td><td>${x.secs??'—'}</td></tr>`).join('');
+    document.getElementById('count').textContent=`${r.length} of ${rows.length} runs`;};
+  document.querySelectorAll('#tbl th').forEach(th=>th.onclick=()=>{
+    const k=th.dataset.k; sd=(k===sk)?-sd:1; sk=k; draw();});
+  ['q','fam-f','onlyship'].forEach(i=>document.getElementById(i).addEventListener('input',draw));
+  draw();
+});
+</script>

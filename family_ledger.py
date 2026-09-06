@@ -37,7 +37,7 @@ ASSIGN = {
  "F4": """I11 S35 S36 S40 S63 S63b S63c A2 A2b A7 A7b A8 A9 A9b A9c A9d A10 A10b A10c A10d
           P3 P3b P4 M1 M1b M1c M1d""",
  "F5": """A1 A1x25 A3 A3x25 I20 S38 X1 X2 X3 X4 X5 X6 X7 X8 X9 X10 X11 Y1 Y2 Y3 Y4 Y5 Y6 Y7""",
- "F6": """A4 A4b M3 M3b M3c S64""",
+ "F6": """A4 A4b M3 M3b M3c S64 R6corr""",
  "F7": """N1b N1c N2 N2b""",
  "F8": """I10""",
  "P":  """RT1 RT2 RT3 RT4""",

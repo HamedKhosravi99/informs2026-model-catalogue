@@ -48,10 +48,32 @@ nothing is hand-typed.
 
 | file | what it is |
 |---|---|
+| [**`dashboard.html`**](catalogue/dashboard.html) | **interactive dashboard** — open it in any browser, no server needed |
 | [`CATALOGUE.md`](catalogue/CATALOGUE.md) | browsable tables, grouped by intervention family |
-| [`catalogue.pdf`](catalogue/catalogue.pdf) | the same content, landscape, 9 pages |
+| [`catalogue.pdf`](catalogue/catalogue.pdf) | the same content, landscape |
 | `catalogue.tex` | LaTeX source |
 | `catalogue.csv` | machine-readable, one row per run |
+
+### The dashboard
+
+`catalogue/dashboard.html` is a single self-contained file — the data is inlined,
+there are no external dependencies and no CDN, so it works offline from `file://`.
+It carries four views:
+
+- **A member's value is not its score.** Every object plotted by solo RMSE against
+  how much its errors resemble the shipped bracket. The useful direction is *down*,
+  not left; the three stock-flow models sit bottom-right, worst and least
+  correlated, and none could be replaced.
+- **Where the effort went.** Runs per intervention family, with the best score
+  reached inside each.
+- **What 219 runs actually look like.** The score distribution against the naive
+  baselines — the search space is narrow, which is why selection discipline
+  mattered more than exploration.
+- **Every run.** All 219, sortable by any column, filterable by text or family,
+  with the twelve shipped members highlighted.
+
+It renders in light and dark, and the palette is validated for colour-vision
+deficiency rather than chosen by eye.
 
 **219 runs are recorded; 209 carry a score.** The remaining 10 either errored, predate the standardised scorer, or diverged (SARIMAX logged a meaningless magnitude on some counties); they are shown with `--` rather than dropped. Thirteen codes appear twice — the same idea re-run after a fix or against a changed control — and are numbered `#1`, `#2` rather than silently collapsed.
 
@@ -123,7 +145,8 @@ Three findings the ledger supports, each measured rather than argued:
 pip install -r requirements.txt          # pinned; Python 3.9
 python3 make_submission.py               # rebuild the prediction file end-to-end
 python3 canonical.py                     # regenerate every number quoted anywhere
-python3 build_catalogue.py catalogue     # regenerate this catalogue
+python3 build_catalogue.py catalogue     # regenerate the catalogue tables
+python3 build_dashboard.py .             # regenerate the dashboard (needs the data)
 python3 family_ledger.py                 # recode the runs into families
 ```
 

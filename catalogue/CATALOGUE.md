@@ -18,7 +18,7 @@ summary and not the official statistic.
 | F3 | Target | 27 | 0.00863 | 0.00960 | 4 |
 | F4 | Exposure | 32 | 0.00893 | 0.00955 | 0 |
 | F5 | Estimation | 23 | 0.00862 | 0.00905 | 3 |
-| F6 | Adaptation | 6 | 0.00892 | 0.00928 | 0 |
+| F6 | Adaptation | 7 | 0.00892 | 0.00938 | 1 |
 | F7 | Combination | 4 | 0.00920 | 0.01149 | 0 |
 | F8 | Uncertainty | 1 | 0.01032 | 0.01032 | 0 |
 | P | Protocol | 4 | 0.00914 | 0.00923 | 0 |
@@ -278,7 +278,7 @@ summary and not the official statistic.
 | `Y6` | p1c @ 25 seeds | stock-flow state space | hurdle / two-part | **0.01081** | 0.01288 | 0.01198 | 0.00975 | 0.00863 | 0.00371 | 349 |  |
 | `Y7` | r6corr @ 25 seeds | stock-flow state space | hurdle / two-part | **0.01083** | 0.01288 | 0.01202 | 0.00986 | 0.00856 | 0.00448 | 787 |  |
 
-## F6 — Adaptation (6 runs)
+## F6 — Adaptation (7 runs)
 
 *Contrast tested:* Fit a correction to or around a finished forecast.
 
@@ -292,6 +292,7 @@ summary and not the official statistic.
 | `M3c` | mixture K=4, no MCL (collapse control) | stock-flow state space | plain squared error | **0.00938** | 0.01122 | 0.01002 | 0.00847 | 0.00782 | 0.00266 | 150 |  |
 | `M3b` | mixture K=8 | stock-flow state space | plain squared error | **0.00966** | 0.01142 | 0.01030 | 0.00878 | 0.00815 | 0.00273 | 1514 |  |
 | `M3` | mixture-of-trajectories K=4 + MCL | stock-flow state space | plain squared error | **0.00984** | 0.01157 | 0.01047 | 0.00901 | 0.00833 | 0.00277 | 493 |  |
+| `R6corr` | stock-flow + two nested flow-bias scalars | — | plain squared error | **0.01090** | 0.01284 | 0.01203 | 0.00999 | 0.00874 | 0.00462 |  | YES |
 
 ## F7 — Combination (4 runs)
 
