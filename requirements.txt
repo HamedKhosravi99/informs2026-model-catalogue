@@ -1,0 +1,17 @@
+# tested versions (python 3.9)
+pandas==2.3.3
+numpy==1.26.4
+scikit-learn==1.6.1
+scipy==1.13.1
+matplotlib==3.9.4
+torch==1.12.0
+xgboost==2.1.4
+lightgbm==4.6.0
+
+# NOTE (macOS): xgboost/lightgbm wheels need the OpenMP runtime (libomp.dylib),
+# which is not bundled and not present on a stock system without Homebrew. This
+# project obtained it from conda-forge (llvm-openmp) and patched the wheels'
+# rpath with `install_name_tool -add_rpath <dir-containing-libomp.dylib> <dylib>`
+# followed by `codesign -f -s -`. On Linux, `libgomp` from the system package
+# manager suffices. If `import xgboost` fails with a libomp dlopen error, this
+# is why.
