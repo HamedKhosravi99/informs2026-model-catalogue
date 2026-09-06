@@ -1,25 +1,25 @@
-# NDA-protected competition data — never commit, even to a private repo
-# Globbed, not exact: a re-download lands as "DM_Test (1).csv", which the bare
-# filename did not match and which `git add -A` would therefore have committed.
+# NDA-protected competition data — never commit, even to a private repo.
+# Globbed, not exact: a re-download lands as "DM_Test (1).csv".
+code/DM_Train*.csv
+code/DM_Test*.csv
+code/sample_submission*.csv
 DM_Train*.csv
 DM_Test*.csv
 sample_submission*.csv
+
+# The organisers' PDFs are NDA material. Ours are deliverables.
 *.pdf
-# ...but our OWN report is a required deliverable, not NDA material.
-!report/*.pdf
+!catalogue.pdf
+!code/report/*.pdf
 
 # LaTeX build artifacts
-report/*.aux
-report/*.log
-report/*.out
+*.aux
+*.log
+*.out
 
 # regenerable derived artifacts
-oof/
+code/oof/
 __pycache__/
 *.pyc
 .DS_Store
-data_static/urma_cache/
-
-# assembled deliverables (regenerable from git)
-code.zip
-TeamName_Submission/
+code/data_static/urma_cache/

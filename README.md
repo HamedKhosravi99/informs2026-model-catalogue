@@ -4,10 +4,19 @@ Complete record of the modelling work for the INFORMS 2026 Data Mining Society
 Data Challenge: every experiment we ran, how each was classified, what it scored,
 and the code that produced all of it.
 
+### → [**Open the interactive dashboard**](https://claude.ai/code/artifact/80c787af-5691-4296-88d4-18d97b978e09)
+
+All 219 runs, the quality-versus-diversity finding, the family breakdown and a
+sortable run table. The same page is committed at
+[`catalogue/dashboard.html`](catalogue/dashboard.html) — a single self-contained
+file that opens offline from `file://` with no server and no dependencies.
+[**`catalogue.pdf`**](catalogue.pdf) in this root is the same record as a
+printable document.
+
 **This repository is private.** It contains no competition data. `DM_Train.csv`,
 `DM_Test.csv`, `sample_submission.csv` and the organisers' PDFs are NDA-protected
 and are excluded by `.gitignore`; the only PDFs here are our own report and
-catalogue. Place the three competition CSVs in the repository root to run anything.
+catalogue. Place the three competition CSVs in `code/` to run anything.
 
 ---
 
@@ -40,6 +49,17 @@ summary.
 magnitude against 54% for persistence. All figures are five-fold county-holdout
 cross-validation on the 239 training counties.
 
+## Repository layout
+
+```
+catalogue.pdf      every run, printable          <- the results document
+catalogue/         the same record: dashboard, markdown, LaTeX, CSV
+code/              all source, scripts, external covariates, run logs, report
+```
+
+Everything executable lives under `code/`, so paths inside the scripts resolve
+relative to that directory; run them from there.
+
 ## The catalogue
 
 [`catalogue/`](catalogue/) holds the full experimental record in four formats,
@@ -48,9 +68,9 @@ nothing is hand-typed.
 
 | file | what it is |
 |---|---|
-| [**`dashboard.html`**](catalogue/dashboard.html) | **interactive dashboard** — open it in any browser, no server needed |
+| [**dashboard**](https://claude.ai/code/artifact/80c787af-5691-4296-88d4-18d97b978e09) · [`dashboard.html`](catalogue/dashboard.html) | interactive; the local copy needs no server |
 | [`CATALOGUE.md`](catalogue/CATALOGUE.md) | browsable tables, grouped by intervention family |
-| [`catalogue.pdf`](catalogue/catalogue.pdf) | the same content, landscape |
+| [`catalogue.pdf`](catalogue.pdf) | the same content, landscape, in the repository root |
 | `catalogue.tex` | LaTeX source |
 | `catalogue.csv` | machine-readable, one row per run |
 
@@ -142,11 +162,12 @@ Three findings the ledger supports, each measured rather than argued:
 ## Running the code
 
 ```bash
+cd code
 pip install -r requirements.txt          # pinned; Python 3.9
 python3 make_submission.py               # rebuild the prediction file end-to-end
 python3 canonical.py                     # regenerate every number quoted anywhere
-python3 build_catalogue.py catalogue     # regenerate the catalogue tables
-python3 build_dashboard.py .             # regenerate the dashboard (needs the data)
+python3 build_catalogue.py ../catalogue   # regenerate the catalogue tables
+python3 build_dashboard.py ..            # regenerate the dashboard (needs the data)
 python3 family_ledger.py                 # recode the runs into families
 ```
 
@@ -160,7 +181,7 @@ python3 family_ledger.py                 # recode the runs into families
 | `rank_check.py` | applies the organisers' average-rank rule alongside our mean |
 | `eval_sota.py`, `combo_rules.py`, `smearing.py`, `find_severe.py` | the analyses behind specific findings |
 
-`src/ideas*.py` hold the model definitions, one module per sweep. `oof/` (cached
+`code/src/ideas*.py` hold the model definitions, one module per sweep. `code/oof/` (cached
 out-of-fold predictions) is git-ignored and regenerable with
 `python3 run_all_ideas.py --only <ID>`.
 
@@ -170,9 +191,9 @@ Every seed is fixed and the pinned environment is CPU-only, so a clean clone
 reproduces a byte-identical SHA-256. No outage-derived value from a timestamp
 after hour 71 reaches any feature: masking happens before feature construction,
 and overwriting every post-origin outage value with garbage changes predictions
-by exactly 0.0. See [`REPRODUCE.md`](REPRODUCE.md) and [`SUBMISSION.md`](SUBMISSION.md).
+by exactly 0.0. See [`code/REPRODUCE.md`](code/REPRODUCE.md) and [`code/SUBMISSION.md`](code/SUBMISSION.md).
 
-`data_static/` contains committed external covariates (land cover, forest
+`code/data_static/` contains committed external covariates (land cover, forest
 inventory, terrain, utility infrastructure, sub-county weather). All are static,
 public and outage-free. One member uses them; a package-only fallback costs
 0.00004, measured.
