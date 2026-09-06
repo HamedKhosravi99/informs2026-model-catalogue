@@ -67,13 +67,30 @@ def build():
     d["family"] = d.fam.map(lambda k: f"{k} {NAME[k]}" if isinstance(k, str) else "—")
     d["mechanism"] = d.code.map(_inv(MECH)).fillna("—")
     d["objective"] = d.code.map(_inv(OBJ)).fillna("plain squared error")
+    # SARIMAX diverged on some counties and logged a meaningless score; keep the run in the
+    # record (it was really tried) but do not let a 1e80 masquerade as a result.
+    num = pd.to_numeric(d.rmse_mean, errors="coerce")
+    d.loc[num > 0.1, ["rmse_mean", "rmse_t01h", "rmse_t06h", "rmse_t24h", "rmse_t48h", "mae_mean"]] = np.nan
+    d.loc[num > 0.1, "note"] = "diverged; score not meaningful"
+    # imported lazily: canonical only supplies the shipped member names, not data
     from canonical import MEMBERS, FREEZE_SUB, FREEZE_ADD, FREEZE_DROP
     ship = {FREEZE_SUB.get(m, m) for m in MEMBERS if m not in FREEZE_DROP} | set(FREEZE_ADD) | {"a3x25"}
-    d["shipped"] = d.code.str.lower().isin({s.lower() for s in ship})
+    # A code run more than once has one instance in the ensemble, not two: flag the best-scoring.
+    cand = d.code.str.lower().isin({s.lower() for s in ship})
+    d["shipped"] = False
+    _num = pd.to_numeric(d.rmse_mean, errors="coerce")
+    for c in d.loc[cand, "code"].unique():
+        rows = d.index[cand & (d.code == c)]
+        d.loc[_num.loc[rows].idxmin() if _num.loc[rows].notna().any() else rows[0], "shipped"] = True
     d["seeds"] = np.where(d.code.str.contains("x25|Y[1-7]", regex=True), 25,
                  np.where(d.code.str.match(r"A3$|X[5-9]$"), 3, 3))
     d = d.sort_values(["fam", "rmse_mean"]).reset_index(drop=True)
-    d["rank"] = d.rmse_mean.rank(method="min").fillna(0).astype(int)   # a few runs have no score
+    d["rank"] = pd.to_numeric(d.rmse_mean, errors="coerce").rank(method="min").fillna(0).astype(int)
+    # 13 codes appear more than once: the same idea re-run after a fix or on a changed control.
+    # Number them so the catalogue shows both rather than silently collapsing them.
+    dup = d.code.duplicated(keep=False)
+    d.loc[dup, "code"] = d.loc[dup].groupby("code").cumcount().add(1).astype(str).radd(
+        d.loc[dup, "code"] + " #")
     return d
 
 

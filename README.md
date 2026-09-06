@@ -53,9 +53,7 @@ nothing is hand-typed.
 | `catalogue.tex` | LaTeX source |
 | `catalogue.csv` | machine-readable, one row per run |
 
-**218 runs are recorded; 209 carry a score.** The remaining
-9 errored or predate the standardised scorer and are shown with
-`--` rather than dropped.
+**219 runs are recorded; 209 carry a score.** The remaining 10 either errored, predate the standardised scorer, or diverged (SARIMAX logged a meaningless magnitude on some counties); they are shown with `--` rather than dropped. Thirteen codes appear twice — the same idea re-run after a fix or against a changed control — and are numbered `#1`, `#2` rather than silently collapsed.
 
 ### How experiments are classified
 
