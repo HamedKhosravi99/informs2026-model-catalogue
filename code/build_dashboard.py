@@ -89,6 +89,9 @@ def main():
         "meta": {"n": len(cat), "scored": int(cat.rmse_num.notna().sum())},
     }
     (OUT / "catalogue").mkdir(parents=True, exist_ok=True)
+    extra = ROOT / "catalogue" / "_extra.json"
+    if extra.exists():
+        data["extra"] = json.loads(extra.read_text())
     blob = json.dumps(data, separators=(",", ":"))
     (OUT / "catalogue" / "dashboard_data.json").write_text(blob)
     # Inline the data so the page works when opened from disk: a fetch() of a sibling

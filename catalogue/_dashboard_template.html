@@ -50,6 +50,17 @@ svg{display:block;width:100%;overflow:visible}
   transition:opacity .1s;box-shadow:0 4px 14px rgba(0,0,0,.14);z-index:9;max-width:270px}
 .tip b{font-weight:640}
 .ctl{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0 8px}
+button{background:var(--surface-1);color:var(--text-primary);border:1px solid var(--line);
+  border-radius:6px;padding:6px 11px;font:inherit;font-size:12.5px;cursor:pointer}
+button:hover{border-color:var(--series-1);color:var(--series-1)}
+#picker label{font-size:12.5px;color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;gap:6px;padding:2px 0}
+#picker label:hover{color:var(--text-primary)}
+#picker input{min-width:auto;margin:0}
+.res{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:8px}
+.res div{background:var(--surface-1);border:1px solid var(--line);border-radius:7px;padding:9px 11px}
+.res .v{font-size:18px;font-weight:640;font-variant-numeric:tabular-nums}
+.res .k{color:var(--text-secondary);font-size:11px;margin-top:1px}
+.verdict{margin-top:10px;font-size:12.5px;color:var(--text-secondary)}
 input,select{background:var(--surface-1);color:var(--text-primary);border:1px solid var(--line);
   border-radius:6px;padding:6px 9px;font:inherit;font-size:13px}
 input{min-width:220px}
@@ -84,6 +95,7 @@ test. Hover any point.</p>
     <span><i style="background:var(--series-1)"></i>bracket member (shipped)</span>
     <span><i style="background:var(--series-2)"></i>anchor <span class="dim">— 50% of the forecast</span></span>
     <span><i style="background:var(--series-3)"></i>tested, not admitted</span>
+    <span><span style="color:var(--series-2)">&#9733;</span> the ensemble of all twelve</span>
   </div>
   <svg id="scatter" viewBox="0 0 900 400" role="img" aria-label="Solo RMSE against error correlation"></svg>
 </div>
@@ -99,6 +111,45 @@ gives the best out-of-fold score reached inside that family. Families are not co
 distribution sits between the naive baselines and the final model: the search space is narrow, which
 is why selection discipline mattered more than raw exploration.</p>
 <div class="card"><svg id="hist" viewBox="0 0 900 250" role="img" aria-label="Score distribution"></svg></div>
+
+<h2>Which models are actually redundant</h2>
+<p class="note">Every pair of models whose errors agree more than the slider allows, drawn as an arc.
+Models sit left-to-right by how good they are alone. <b>A model buried under arcs is saying what
+others already said.</b> The three stock-flow models on the right sit almost bare — that is the whole
+reason they survive, despite being the weakest in the set. Drag the slider to raise the bar.</p>
+<div class="card">
+  <div class="ctl" style="margin-top:0">
+    <label style="font-size:12.5px;color:var(--text-secondary)">show pairs correlated above
+      <input type="range" id="arcth" min="0.70" max="0.96" step="0.01" value="0.86" style="min-width:200px;vertical-align:-4px">
+      <b id="arcv">0.86</b></label>
+    <span id="arcn" class="dim" style="font-size:12.5px"></span>
+  </div>
+  <svg id="arc" viewBox="0 0 900 330" role="img" aria-label="Redundancy arcs between models"></svg>
+</div>
+
+<h2>Every selection procedure we tried reversed</h2>
+<p class="note">Each line is one way of choosing something from the data — weights, a member subset,
+a gate, a threshold. The left end is what it scored when the choice was made and judged on the same
+folds; the right end is the same procedure with the choice itself moved inside the cross-validation.
+<b>Every line goes the wrong way.</b> This is why the shipped model contains no member chosen by
+cross-validation rank.</p>
+<div class="card"><svg id="rev" viewBox="0 0 900 340" role="img" aria-label="Naive versus nested scores"></svg></div>
+
+<h2>Build your own ensemble</h2>
+<p class="note">Tick any set of models and see what an equal-weight average of them actually scores.
+The numbers are <b>exact</b>, not interpolated: they come from the models' error cross-products, so
+each result is what you would have measured by running the combination. Try adding the best models
+one at a time and watch it stop helping.</p>
+<div class="card">
+  <div id="picker" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:2px 10px;margin-bottom:10px"></div>
+  <div class="ctl" style="margin:0 0 10px">
+    <button id="pick-ship">the shipped twelve</button>
+    <button id="pick-best">five best alone</button>
+    <button id="pick-div">five most diverse</button>
+    <button id="pick-none">clear</button>
+  </div>
+  <div id="yours"></div>
+</div>
 
 <h2>Every run</h2>
 <p class="note"><b>Click any column heading to sort</b> — click again to reverse. Filter by text or
@@ -138,8 +189,8 @@ fetch('dashboard_data.json').then(r=>r.json()).then(D=>{
 
   /* ---- scatter: quality vs diversity ---- */
   {const s=document.getElementById('scatter'),W=900,H=400,m={t:14,r:120,b:44,l:62};
-   const P=D.diversity,xs=P.map(p=>p.rmse),ys=P.map(p=>p.corr);
-   const x0=Math.min(...xs)*0.995,x1=Math.max(...xs)*1.005,y0=Math.min(...ys)-.012,y1=Math.max(...ys)+.012;
+   const P=D.diversity,xs=P.map(p=>p.rmse),ys=P.map(p=>p.corr).concat([D.extra.ens.corr]);
+   const x0=Math.min(D.extra.ens.rmse,...xs)*0.994,x1=Math.max(...xs)*1.005,y0=Math.min(...ys)-.012,y1=Math.max(...ys)+.020;
    const X=v=>m.l+(v-x0)/(x1-x0)*(W-m.l-m.r), Y=v=>H-m.b-(v-y0)/(y1-y0)*(H-m.t-m.b);
    const g=el('g',{class:'grid'});
    for(let i=0;i<=4;i++){const yy=y0+(y1-y0)*i/4;g.append(el('line',{x1:m.l,x2:W-m.r,y1:Y(yy),y2:Y(yy)}));
@@ -149,6 +200,19 @@ fetch('dashboard_data.json').then(r=>r.json()).then(D=>{
    s.prepend(g);
    const c={bracket:'var(--series-1)',anchor:'var(--series-2)',tested:'var(--series-3)'};
    const placed=[];
+   /* shade the region occupied by the twelve shipped predictors, so "these are the
+      ensemble" is visible rather than inferred from the legend */
+   {const sh=P.filter(p=>p.group!=='tested').map(p=>[X(p.rmse),Y(p.corr)]);
+    if(sh.length>2){
+      const cx=sh.reduce((a,b)=>a+b[0],0)/sh.length, cy=sh.reduce((a,b)=>a+b[1],0)/sh.length;
+      const pts=sh.slice().sort((a,b)=>Math.atan2(a[1]-cy,a[0]-cx)-Math.atan2(b[1]-cy,b[0]-cx));
+      const hull=pts.map(([x,yy])=>{const d=Math.hypot(x-cx,yy-cy)||1;return [x+(x-cx)/d*16,yy+(yy-cy)/d*16];});
+      s.append(el('polygon',{points:hull.map(q=>q.join(',')).join(' '),
+        fill:'var(--series-1)','fill-opacity':.07,stroke:'var(--series-1)','stroke-opacity':.35,
+        'stroke-width':1.5,'stroke-dasharray':'5 4'}));
+      const t=el('text',{x:cx,y:Math.min(...hull.map(q=>q[1]))-9,class:'dlab','text-anchor':'middle',
+        fill:'var(--series-1)','font-weight':'640'});
+      t.textContent='the 12 predictors that ship';s.append(t);}}
    P.forEach(p=>{const cx=X(p.rmse),cy=Y(p.corr),big=p.group!=='tested';
      const o=el('circle',{cx,cy,r:big?6:5,fill:c[p.group],stroke:'var(--surface-2)','stroke-width':2});
      o.style.cursor='pointer';
@@ -168,6 +232,19 @@ fetch('dashboard_data.json').then(r=>r.json()).then(D=>{
      const t=el('text',{x:lx,y:ly,class:'dlab','text-anchor':anchor,
        stroke:'var(--surface-2)','stroke-width':3.2,'paint-order':'stroke fill'});
      t.textContent=p.label;s.append(t);});
+   /* the ensemble itself: better than every one of its parts */
+   {const ex=X(D.extra.ens.rmse),ey=Y(D.extra.ens.corr),R=11,r=4.6,pts=[];
+    for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,rad=i%2?r:R;
+      pts.push([ex+rad*Math.cos(a),ey+rad*Math.sin(a)]);}
+    const st=el('polygon',{points:pts.map(q=>q.join(',')).join(' '),fill:'var(--series-2)',
+      stroke:'var(--surface-2)','stroke-width':2});
+    st.style.cursor='pointer';
+    st.addEventListener('mousemove',e=>show(e,`<b>the shipped ensemble</b><br>RMSE ${f5(D.extra.ens.rmse)}<br>`+
+      `better than all ${D.extra.ens.members.length+1} of its parts<br><span class="chip">amplitude x shape, then 50/50 with the anchor</span>`));
+    st.addEventListener('mouseleave',hide);s.append(st);
+    const t=el('text',{x:ex,y:ey+R+13,class:'dlab','text-anchor':'middle',fill:'var(--series-2)',
+      'font-weight':'640',stroke:'var(--surface-2)','stroke-width':3.2,'paint-order':'stroke fill'});
+    t.textContent='ENSEMBLE '+f5(D.extra.ens.rmse);s.append(t);}
    const xl=el('text',{x:(m.l+W-m.r)/2,y:H-6,class:'axlab','text-anchor':'middle'});
    xl.textContent='solo RMSE  (lower = better model)';s.append(xl);
    const yl=el('text',{x:-(m.t+H-m.b)/2,y:15,class:'axlab','text-anchor':'middle',transform:'rotate(-90)'});
@@ -212,6 +289,103 @@ fetch('dashboard_data.json').then(r=>r.json()).then(D=>{
      t.textContent=xx.toFixed(3);s.append(t);}
    const xl=el('text',{x:(m.l+W-m.r)/2,y:H-6,class:'axlab','text-anchor':'middle'});
    xl.textContent='out-of-fold RMSE';s.append(xl);}
+
+  /* ---- arc diagram: who is saying the same thing as whom ---- */
+  const X2=D.extra, OB=X2.objs, byId=Object.fromEntries(OB.map((o,i)=>[o.id,i]));
+  {const sv=document.getElementById('arc'),W=900,H=330,m={t:96,b:20,l:34,r:34};
+   const ord=OB.map((o,i)=>i).sort((a,b)=>OB[a].rmse-OB[b].rmse);
+   const px=i=>m.l+(ord.indexOf(i)/(OB.length-1))*(W-m.l-m.r), base=m.t;
+   const col=o=>o.role==='tested'?'var(--series-3)':(o.role==='anchor'?'var(--series-2)':'var(--series-1)');
+   const draw=th=>{sv.innerHTML='';let cnt=0;
+     for(let i=0;i<OB.length;i++)for(let j=i+1;j<OB.length;j++){
+       const c=X2.corr[i][j]; if(c<th)continue; cnt++;
+       const a=px(i),b=px(j),r=Math.abs(b-a)/2,mid=(a+b)/2;
+       const strength=(c-th)/Math.max(1e-6,0.97-th);
+       sv.append(el('path',{d:`M ${a} ${base} A ${r} ${Math.min(r,H-base-m.b)} 0 0 ${b>a?0:1} ${b} ${base}`,
+         fill:'none',stroke:'var(--series-1)','stroke-opacity':(0.10+0.45*strength).toFixed(3),
+         'stroke-width':(0.7+1.9*strength).toFixed(2)}));}
+     ord.forEach(i=>{const o=OB[i],x=px(i);
+       const c=el('circle',{cx:x,cy:base,r:o.role==='tested'?4:5.5,fill:col(o),
+         stroke:'var(--surface-2)','stroke-width':1.6}); c.style.cursor='pointer';
+       const deg=X2.corr[i].filter((v,j)=>j!==i&&v>=th).length;
+       c.addEventListener('mousemove',e=>show(e,`<b>${o.label}</b><br>solo RMSE ${f5(o.rmse)}<br>`+
+         `${deg} model${deg===1?'':'s'} agree above ${th.toFixed(2)}<br><span class="chip">${o.role}</span>`));
+       c.addEventListener('mouseleave',hide); sv.append(c);
+       const t=el('text',{x:x,y:base-11,class:'dlab','text-anchor':'start',
+         transform:`rotate(-42 ${x} ${base-11})`,fill:o.role==='tested'?'var(--text-muted)':'var(--text-secondary)'});
+       t.textContent=o.label; sv.append(t);});
+     document.getElementById('arcn').textContent=`${cnt} pair${cnt===1?'':'s'} of ${OB.length*(OB.length-1)/2}`;};
+   const sl=document.getElementById('arcth');
+   const upd=()=>{document.getElementById('arcv').textContent=(+sl.value).toFixed(2);draw(+sl.value);};
+   sl.addEventListener('input',upd); upd();}
+
+  /* ---- reversal slopegraph ---- */
+  {const sv=document.getElementById('rev'),W=900,H=340,m={t:30,b:40,l:215,r:215};
+   const R=X2.reversals,all=R.flatMap(r=>[r.naive,r.nested]);
+   const lo=Math.min(...all)*0.995,hi=Math.max(...all)*1.005,Y=v=>m.t+(v-lo)/(hi-lo)*(H-m.t-m.b);
+   const xa=m.l,xb=W-m.r;
+   [[xa,'chosen and judged on the same folds'],[xb,'choice nested inside the folds']].forEach(([x,l])=>{
+     sv.append(el('line',{x1:x,x2:x,y1:m.t-8,y2:H-m.b,stroke:'var(--grid)','stroke-width':1}));
+     const t=el('text',{x,y:m.t-14,class:'axlab','text-anchor':'middle'});t.textContent=l;sv.append(t);});
+   /* the scores cluster, so spread the LABELS to a legible pitch and connect each back
+      to its true position with a short leader; the lines themselves stay exact */
+   const MIN=15, spread=(vals)=>{const o=vals.map((v,i)=>({v,i})).sort((a,b)=>a.v-b.v);
+     for(let k=1;k<o.length;k++) if(o[k].v-o[k-1].v<MIN) o[k].v=o[k-1].v+MIN;
+     const out=[]; o.forEach(q=>out[q.i]=q.v); return out;};
+   const ly1=spread(R.map(r=>Y(r.naive))), ly2=spread(R.map(r=>Y(r.nested)));
+   R.forEach((r,i)=>{const y1=Y(r.naive),y2=Y(r.nested);
+     const g=el('g'); g.style.cursor='pointer';
+     g.append(el('line',{x1:xa,y1,x2:xb,y2,stroke:'var(--series-2)','stroke-width':2,'stroke-opacity':.75}));
+     g.append(el('circle',{cx:xa,cy:y1,r:4,fill:'var(--series-2)'}));
+     g.append(el('circle',{cx:xb,cy:y2,r:4,fill:'var(--series-2)'}));
+     g.append(el('line',{x1:xa-6,y1,x2:xa-14,y2:ly1[i],stroke:'var(--line)','stroke-width':1}));
+     g.append(el('line',{x1:xb+6,y1:y2,x2:xb+14,y2:ly2[i],stroke:'var(--line)','stroke-width':1}));
+     const l1=el('text',{x:xa-17,y:ly1[i]+3.5,class:'dlab','text-anchor':'end'});
+     l1.textContent=`${r.name}  ${f5(r.naive)}`; g.append(l1);
+     const l2=el('text',{x:xb+17,y:ly2[i]+3.5,class:'dlab'});
+     l2.textContent=`${f5(r.nested)}  (+${((r.nested-r.naive)*1e5).toFixed(1)}e-5)`; g.append(l2);
+     g.addEventListener('mousemove',e=>show(e,`<b>${r.name}</b><br>naive ${f5(r.naive)}<br>nested ${f5(r.nested)}<br>the gap is what the selection invented`));
+     g.addEventListener('mouseleave',hide); sv.append(g);});
+   const t=el('text',{x:W/2,y:H-8,class:'axlab','text-anchor':'middle',fill:'var(--text-muted)'});
+   t.textContent='downward on this axis is worse — every procedure lost ground once its own choice was nested';
+   sv.append(t);}
+
+  /* ---- exact ensemble builder (mean combination via the error Gram tensor) ---- */
+  {const HK=['t01','t06','t24','t48'],pick=new Set(D.extra.ens.members.concat(['a3x25']));
+   const pk=document.getElementById('picker');
+   OB.forEach(o=>{const id='ck_'+o.id;
+     pk.insertAdjacentHTML('beforeend',
+       `<label for="${id}"><input type="checkbox" id="${id}" data-id="${o.id}"${pick.has(o.id)?' checked':''}>`+
+       `<span style="color:${o.role==='tested'?'var(--series-3)':(o.role==='anchor'?'var(--series-2)':'var(--series-1)')}">&#9679;</span>`+
+       `${o.label} <span class="dim">${f5(o.rmse)}</span></label>`);});
+   const score=sel=>{const i=sel.map(x=>byId[x]),k=i.length;
+     return HK.map(hk=>{let sum=0;const g=X2.gram[hk];
+       for(const a of i)for(const b of i)sum+=g[a][b];
+       return Math.sqrt(sum/(k*k)/X2.n[hk]);});};
+   const render=()=>{const sel=[...pk.querySelectorAll('input:checked')].map(c=>c.dataset.id);
+     const box=document.getElementById('yours');
+     if(sel.length===0){box.innerHTML='<div class="verdict">Pick at least one model.</div>';return;}
+     const h=score(sel),mean=h.reduce((a,b)=>a+b,0)/4;
+     const best=Math.min(...sel.map(x=>OB[byId[x]].rmse));
+     const bestLab=OB[byId[sel[sel.map(x=>OB[byId[x]].rmse).indexOf(best)]]].label;
+     box.innerHTML=`<div class="res">
+       <div><div class="v">${f5(mean)}</div><div class="k">your ensemble</div></div>
+       <div><div class="v">${f5(h[0])}</div><div class="k">t+1</div></div>
+       <div><div class="v">${f5(h[1])}</div><div class="k">t+6</div></div>
+       <div><div class="v">${f5(h[2])}</div><div class="k">t+24</div></div>
+       <div><div class="v">${f5(h[3])}</div><div class="k">t+48</div></div>
+       <div><div class="v">${sel.length}</div><div class="k">models averaged</div></div></div>
+       <div class="verdict">Best single model in your set: <b>${bestLab}</b> at ${f5(best)} —
+       averaging ${mean<best?`beats it by ${((best-mean)*1e5).toFixed(1)}e-5`:`is <b>worse</b> by ${((mean-best)*1e5).toFixed(1)}e-5`}.
+       The shipped ensemble scores ${f5(D.extra.ens.rmse)} using a combination rule better than a plain mean.</div>`;};
+   pk.addEventListener('change',render);
+   const set=ids=>{pk.querySelectorAll('input').forEach(c=>c.checked=ids.includes(c.dataset.id));render();};
+   document.getElementById('pick-ship').onclick=()=>set(D.extra.ens.members.concat(['a3x25']));
+   document.getElementById('pick-best').onclick=()=>set(OB.slice().sort((a,b)=>a.rmse-b.rmse).slice(0,5).map(o=>o.id));
+   document.getElementById('pick-div').onclick=()=>set(OB.map((o,i)=>[o.id,X2.corr[i].reduce((a,b)=>a+b,0)])
+     .sort((a,b)=>a[1]-b[1]).slice(0,5).map(x=>x[0]));
+   document.getElementById('pick-none').onclick=()=>set([]);
+   render();}
 
   /* ---- table ---- */
   const rows=D.runs.map(r=>({...r,h0:r.h[0],h1:r.h[1],h2:r.h[2],h3:r.h[3]}));

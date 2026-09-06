@@ -84,12 +84,27 @@ nothing is hand-typed.
 
 `catalogue/dashboard.html` is a single self-contained file — the data is inlined,
 there are no external dependencies and no CDN, so it works offline from `file://`.
-It carries four views:
+It carries six views:
 
 - **A member's value is not its score.** Every object plotted by solo RMSE against
-  how much its errors resemble the shipped bracket. The useful direction is *down*,
-  not left; the three stock-flow models sit bottom-right, worst and least
-  correlated, and none could be replaced.
+  how much its errors resemble the rest. The twelve predictors that ship are
+  enclosed and labelled, and the ensemble they form is marked with a star at a
+  score better than any of its parts. The useful direction is *down*, not left:
+  the three stock-flow models sit bottom-right, worst and least correlated, and
+  none could be replaced.
+- **Which models are actually redundant.** An arc joins every pair of models whose
+  errors agree above a threshold you control. Models buried under arcs are saying
+  what others already said; the stock-flow models sit almost bare, which is the
+  whole reason they survive.
+- **Every selection procedure we tried reversed.** Seven ways of choosing something
+  from the data, each drawn from what it scored when judged on the folds it was
+  chosen on, to what it scored with that choice nested inside the folds. Every
+  line goes the wrong way.
+- **Build your own ensemble.** Tick any set of models and get the exact per-horizon
+  RMSE of their equal-weight average — recovered from the models' error
+  cross-products, so it is what you would have measured by running the
+  combination, not an approximation. Worth trying: the five best models *alone*
+  average to 0.00856, worse than the shipped twelve at 0.00847.
 - **Where the effort went.** Runs per intervention family, with the best score
   reached inside each.
 - **What 219 runs actually look like.** The score distribution against the naive
