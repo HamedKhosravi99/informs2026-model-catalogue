@@ -88,8 +88,8 @@ summary and not the official statistic.
 | `I17b` | static + physics | Seq2Seq (GRU) | plain squared error | **0.01046** | 0.01294 | 0.01159 | 0.00903 | 0.00827 | 0.00333 | 17 |  |
 | `I16` | static enrichment | Seq2Seq (GRU) | plain squared error | **0.01047** | 0.01274 | 0.01151 | 0.00920 | 0.00842 | 0.00334 | 19 |  |
 | `I17` | physics indices | Seq2Seq (GRU) | plain squared error | **0.01081** | 0.01296 | 0.01172 | 0.00960 | 0.00896 | 0.00336 | 18 |  |
-| `F1 #2` | independent-agent features (pre-event frag, clocks, interactions | boosted / bagged trees | sqrt target | **--** | -- | 1.00000 | -- | -- | -- |  |  |
-| `F1 #3` | independent-agent features (pre-event frag, clocks, interactions | boosted / bagged trees | sqrt target | **--** | -- | 1.00000 | -- | -- | -- |  |  |
+| `F1 #2` | independent-agent features (pre-event frag, clocks, interactions | boosted / bagged trees | sqrt target | **--** | -- | -- | -- | -- | -- |  |  |
+| `F1 #3` | independent-agent features (pre-event frag, clocks, interactions | boosted / bagged trees | sqrt target | **--** | -- | -- | -- | -- | -- |  |  |
 
 ## F2 — Mechanism (69 runs)
 
@@ -165,9 +165,9 @@ summary and not the official statistic.
 | `S25` | binned classification | boosted / bagged trees | plain squared error | **0.03353** | 0.03695 | 0.03431 | 0.03042 | 0.03242 | 0.00610 | 87 |  |
 | `TS3` | iTransformer-KF (Liu ICLR 2024 + known-future variates) | patch / variate attention | plain squared error | **0.05797** | 0.06981 | 0.06457 | 0.04753 | 0.04996 | 0.00518 | 85 |  |
 | `TS1` | DLinear-KF (Zeng AAAI 2023 + known-future) | TCN / basis / linear | plain squared error | **0.08799** | 0.13170 | 0.12663 | 0.06556 | 0.02807 | 0.00638 | 5 |  |
-| `B1 #2` | SARIMAX(2,0,2) per-county baseline | other / statistical | plain squared error | **--** | -- | 0.00000 | -- | -- | -- |  |  |
+| `B1 #2` | SARIMAX(2,0,2) per-county baseline | other / statistical | plain squared error | **--** | -- | -- | -- | -- | -- |  |  |
 | `B1 #3` | SARIMAX(2,0,2) per-county baseline | other / statistical | plain squared error | **--** | -- | -- | -- | -- | -- | 9 |  |
-| `D5 #2` | proper B-spline KAN (quantile inputs, base residual) | MLP / KAN / TabNet / FT-T | plain squared error | **--** | -- | 23.00000 | -- | -- | -- |  |  |
+| `D5 #2` | proper B-spline KAN (quantile inputs, base residual) | MLP / KAN / TabNet / FT-T | plain squared error | **--** | -- | -- | -- | -- | -- |  |  |
 
 ## F3 — Target (27 runs)
 
@@ -240,11 +240,11 @@ summary and not the official statistic.
 | `M1b` | stock-flow MC rollout, DAgger-1 | stock-flow state space | hurdle / two-part | **0.01052** | 0.01237 | 0.01151 | 0.00963 | 0.00857 | 0.00291 | 272 |  |
 | `M1` | stock-flow MC rollout, teacher-forced | stock-flow state space | hurdle / two-part | **0.01067** | 0.01289 | 0.01194 | 0.00955 | 0.00831 | 0.00296 | 157 |  |
 | `M1d` | MC teacher-forced, 64 paths | stock-flow state space | hurdle / two-part | **0.01084** | 0.01307 | 0.01211 | 0.00967 | 0.00850 | 0.00300 | 162 |  |
-| `P4 #2` | storm-phase canonicalization | Seq2Seq (GRU) | plain squared error | **--** | -- | 0.00000 | -- | -- | -- |  |  |
-| `A10` | trailing-window multi-origin 47/59/71 (control) | BiEncSeq2Seq | dual raw+sqrt | **--** | -- | 33.00000 | -- | -- | -- |  |  |
-| `A10b` | trailing-window 47/71/103 (lull origin) | BiEncSeq2Seq | dual raw+sqrt | **--** | -- | 33.00000 | -- | -- | -- |  |  |
-| `A10c` | trailing-window 47/59/71/103 | BiEncSeq2Seq | dual raw+sqrt | **--** | -- | 37.00000 | -- | -- | -- |  |  |
-| `A10d` | trailing-window 71/103 | BiEncSeq2Seq | dual raw+sqrt | **--** | -- | 15.00000 | -- | -- | -- |  |  |
+| `P4 #2` | storm-phase canonicalization | Seq2Seq (GRU) | plain squared error | **--** | -- | -- | -- | -- | -- |  |  |
+| `A10` | trailing-window multi-origin 47/59/71 (control) | BiEncSeq2Seq | dual raw+sqrt | **--** | -- | -- | -- | -- | -- |  |  |
+| `A10b` | trailing-window 47/71/103 (lull origin) | BiEncSeq2Seq | dual raw+sqrt | **--** | -- | -- | -- | -- | -- |  |  |
+| `A10c` | trailing-window 47/59/71/103 | BiEncSeq2Seq | dual raw+sqrt | **--** | -- | -- | -- | -- | -- |  |  |
+| `A10d` | trailing-window 71/103 | BiEncSeq2Seq | dual raw+sqrt | **--** | -- | -- | -- | -- | -- |  |  |
 
 ## F5 — Estimation (23 runs)
 

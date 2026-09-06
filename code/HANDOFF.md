@@ -522,7 +522,7 @@ EMAIL_TO_CHAIRS.md drafted metric question
   gross flows to RMSE 3.4e-05.
 - **Zero-initialising both a latent and its projection** is a saddle — neither learns.
 - **XGBoost/LightGBM need libomp**, which is not installed system-wide. It was fetched
-  from conda-forge into `~/.claude/jobs/.../lib` and the wheels' rpath patched with
+  from conda-forge into `the job's lib directory` and the wheels' rpath patched with
   `install_name_tool`. If they stop importing, redo that.
 
 ---

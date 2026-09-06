@@ -69,9 +69,16 @@ def build():
     d["objective"] = d.code.map(_inv(OBJ)).fillna("plain squared error")
     # SARIMAX diverged on some counties and logged a meaningless score; keep the run in the
     # record (it was really tried) but do not let a 1e80 masquerade as a result.
+    HCOLS = ["rmse_mean", "rmse_t01h", "rmse_t06h", "rmse_t24h", "rmse_t48h", "mae_mean"]
     num = pd.to_numeric(d.rmse_mean, errors="coerce")
-    d.loc[num > 0.1, ["rmse_mean", "rmse_t01h", "rmse_t06h", "rmse_t24h", "rmse_t48h", "mae_mean"]] = np.nan
-    d.loc[num > 0.1, "note"] = "diverged; score not meaningful"
+    # SARIMAX diverged on some counties and logged a meaningless magnitude.
+    d.loc[num > 0.1, HCOLS] = np.nan
+    # Runs that errored wrote their exception text into rmse_t01h and left a spurious
+    # 0.0 in rmse_t06h. A run with no mean has no per-horizon score either: blank the row
+    # rather than let a 0.0 sort to the top of a horizon column as if it were the best.
+    d.loc[num.isna(), HCOLS] = np.nan
+    for c in HCOLS:
+        d[c] = pd.to_numeric(d[c], errors="coerce")
     # imported lazily: canonical only supplies the shipped member names, not data
     from canonical import MEMBERS, FREEZE_SUB, FREEZE_ADD, FREEZE_DROP
     ship = {FREEZE_SUB.get(m, m) for m in MEMBERS if m not in FREEZE_DROP} | set(FREEZE_ADD) | {"a3x25"}

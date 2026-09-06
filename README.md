@@ -4,12 +4,18 @@ Complete record of the modelling work for the INFORMS 2026 Data Mining Society
 Data Challenge: every experiment we ran, how each was classified, what it scored,
 and the code that produced all of it.
 
-### → [**Open the interactive dashboard**](https://claude.ai/code/artifact/80c787af-5691-4296-88d4-18d97b978e09)
+### The dashboard
 
-All 219 runs, the quality-versus-diversity finding, the family breakdown and a
-sortable run table. The same page is committed at
-[`catalogue/dashboard.html`](catalogue/dashboard.html) — a single self-contained
-file that opens offline from `file://` with no server and no dependencies.
+[`catalogue/dashboard.html`](catalogue/dashboard.html) — all 219 runs, the
+quality-versus-diversity finding, the family breakdown, and a run table sortable
+by every column. It is a single self-contained file: clone or download the repo
+and open it in any browser. No server, no dependencies, works offline.
+
+```bash
+git clone git@github.com:HamedKhosravi99/informs2026-model-catalogue.git
+open informs2026-model-catalogue/catalogue/dashboard.html
+```
+
 [**`catalogue.pdf`**](catalogue.pdf) in this root is the same record as a
 printable document.
 
@@ -68,7 +74,7 @@ nothing is hand-typed.
 
 | file | what it is |
 |---|---|
-| [**dashboard**](https://claude.ai/code/artifact/80c787af-5691-4296-88d4-18d97b978e09) · [`dashboard.html`](catalogue/dashboard.html) | interactive; the local copy needs no server |
+| [**`dashboard.html`**](catalogue/dashboard.html) | interactive; open it locally, no server needed |
 | [`CATALOGUE.md`](catalogue/CATALOGUE.md) | browsable tables, grouped by intervention family |
 | [`catalogue.pdf`](catalogue.pdf) | the same content, landscape, in the repository root |
 | `catalogue.tex` | LaTeX source |
@@ -89,8 +95,8 @@ It carries four views:
 - **What 219 runs actually look like.** The score distribution against the naive
   baselines — the search space is narrow, which is why selection discipline
   mattered more than exploration.
-- **Every run.** All 219, sortable by any column, filterable by text or family,
-  with the twelve shipped members highlighted.
+- **Every run.** All 219. Click any column heading to sort, click again to reverse;
+  filter by text or by family; the twelve shipped members are highlighted.
 
 It renders in light and dark, and the palette is validated for colour-vision
 deficiency rather than chosen by eye.

@@ -57,8 +57,12 @@ table{border-collapse:collapse;width:100%;font-size:12.5px;font-variant-numeric:
 th,td{text-align:right;padding:5px 7px;border-bottom:1px solid var(--line);white-space:nowrap}
 th:nth-child(-n+4),td:nth-child(-n+4){text-align:left}
 th{color:var(--text-secondary);font-weight:600;cursor:pointer;user-select:none;position:sticky;top:0;
-  background:var(--surface-1);font-size:11.5px}
+  background:var(--surface-1);font-size:11.5px;white-space:nowrap}
 th:hover{color:var(--text-primary)}
+th::after{content:'\2195';opacity:.28;margin-left:4px;font-size:10px}
+th:hover::after{opacity:.6}
+th.up::after{content:'\2191';opacity:1;color:var(--series-1)}
+th.dn::after{content:'\2193';opacity:1;color:var(--series-1)}
 .wrap{max-height:480px;overflow:auto;border:1px solid var(--line);border-radius:8px}
 tr.ship td{background:color-mix(in srgb,var(--series-1) 9%,transparent)}
 .chip{display:inline-block;background:var(--surface-1);border:1px solid var(--line);border-radius:4px;
@@ -97,8 +101,9 @@ is why selection discipline mattered more than raw exploration.</p>
 <div class="card"><svg id="hist" viewBox="0 0 900 250" role="img" aria-label="Score distribution"></svg></div>
 
 <h2>Every run</h2>
-<p class="note">Sortable and filterable. Shipped members are highlighted. <span class="dim">&mdash;
-means the run errored, diverged, or predates the standardised scorer.</span></p>
+<p class="note"><b>Click any column heading to sort</b> — click again to reverse. Filter by text or
+family below. Shipped members are highlighted. <span class="dim">&mdash; means the run errored,
+diverged, or predates the standardised scorer.</span></p>
 <div class="ctl">
   <input id="q" placeholder="filter by code, name, mechanism, objective…" aria-label="Filter runs">
   <select id="fam-f" aria-label="Filter by family"><option value="">all families</option></select>
@@ -109,7 +114,7 @@ means the run errored, diverged, or predates the standardised scorer.</span></p>
   <th data-k="code">code</th><th data-k="name">experiment</th><th data-k="family">family</th>
   <th data-k="mech">mechanism</th><th data-k="rmse">RMSE</th><th data-k="h0">t+1</th>
   <th data-k="h1">t+6</th><th data-k="h2">t+24</th><th data-k="h3">t+48</th>
-  <th data-k="mae">MAE</th><th data-k="secs">sec</th>
+  <th data-k="obj">objective</th><th data-k="mae">MAE</th><th data-k="secs">sec</th>
 </tr></thead><tbody></tbody></table></div>
 <div class="tip" id="tip"></div>
 </div>
@@ -224,8 +229,12 @@ fetch('dashboard_data.json').then(r=>r.json()).then(D=>{
       <td><b>${x.code}</b>${x.shipped?' <span class="chip">shipped</span>':''}</td>
       <td>${x.name}</td><td>${x.family}</td><td>${x.mech}</td>
       <td>${f5(x.rmse)}</td><td>${f5(x.h0)}</td><td>${f5(x.h1)}</td><td>${f5(x.h2)}</td>
-      <td>${f5(x.h3)}</td><td>${x.mae==null?'—':x.mae.toFixed(5)}</td><td>${x.secs??'—'}</td></tr>`).join('');
-    document.getElementById('count').textContent=`${r.length} of ${rows.length} runs`;};
+      <td>${f5(x.h3)}</td><td style="text-align:left">${x.obj}</td>
+      <td>${x.mae==null?'—':x.mae.toFixed(5)}</td><td>${x.secs??'—'}</td></tr>`).join('');
+    document.getElementById('count').textContent=`${r.length} of ${rows.length} runs`;
+    document.querySelectorAll('#tbl th').forEach(h=>{
+      h.classList.remove('up','dn');
+      if(h.dataset.k===sk)h.classList.add(sd===1?'up':'dn');});};
   document.querySelectorAll('#tbl th').forEach(th=>th.onclick=()=>{
     const k=th.dataset.k; sd=(k===sk)?-sd:1; sk=k; draw();});
   ['q','fam-f','onlyship'].forEach(i=>document.getElementById(i).addEventListener('input',draw));
