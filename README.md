@@ -64,18 +64,39 @@ cross-validation on the 239 training counties.
 
 ## Going public on 25 September 2026
 
-The report cites both the dashboard and this repository. The dashboard is
-already reachable; this repository opens once the deadline passes:
+The report cites two URLs, and both are private until the deadline passes. Run
+these three commands on 25 September and both go live:
 
 ```bash
-gh repo edit HamedKhosravi99/informs2026-model-catalogue --visibility public
+gh repo edit HamedKhosravi99/informs2026-model-catalogue --visibility public --accept-visibility-change-consequences
+gh repo edit HamedKhosravi99/informs2026-dashboard --visibility public --accept-visibility-change-consequences
+gh api -X POST repos/HamedKhosravi99/informs2026-dashboard/pages -f 'source[branch]=main' -f 'source[path]=/'
 ```
 
+The third command is the one that is easy to forget: **making the repository
+public does not by itself publish the page.** Pages is unpublished whenever the
+repository goes private, so it has to be re-enabled explicitly, and until it is
+the URL returns a 404 no matter what the visibility says. Check `has_pages`, not
+the visibility flag:
+
+```bash
+gh api repos/HamedKhosravi99/informs2026-dashboard --jq '{private,has_pages}'
+curl -s -o /dev/null -w '%{http_code}\n' https://hamedkhosravi99.github.io/informs2026-dashboard/
+```
+
+This was rehearsed end to end on 2026-09-06: public → Pages enabled → **live in
+24 seconds**, serving a page byte-identical to `catalogue/dashboard.html`, at
+exactly the URL the report prints. Then set back to private. Note that after a
+takedown the URL keeps answering from GitHub's CDN for up to ten minutes
+(`cache-control: max-age=600`) before it starts returning 404 — that is cache,
+not a live site.
+
 GitHub Pages cannot serve a private repository on a free plan, and a public
-repository has no per-file access control — which is why the page lives in its
-own public repository and the code does not. To republish the dashboard after
-regenerating it, push `catalogue/dashboard.html` to that repository as
-`index.html`; `docs/index.html` here is kept in sync as the archival copy.
+repository has no per-file access control. Restricting a Pages site to named
+people needs Enterprise Cloud. That is why the page lives in its own public
+repository holding nothing but the page, and the code does not. To republish
+after regenerating, push `catalogue/dashboard.html` to that repository as
+`index.html`; `docs/index.html` here is the archival copy.
 
 ## Repository layout
 
