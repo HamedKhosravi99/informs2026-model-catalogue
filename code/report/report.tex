@@ -60,8 +60,8 @@ fitted combination parameters}, scoring \textbf{0.00838} (mean of the
 four horizon RMSEs with the configuration choice itself nested; a reporting
 summary, not the official ranking statistic) against $0.01632$ for
 all-zeros and $0.01110$ for decayed persistence. The full ledger, the
-code, and an interactive dashboard over all 210 models are in the repository named
-in §\ref{sec:repro}.
+code, and an interactive dashboard over all 210 models ship with this
+submission; §\ref{sec:repro} says where.
 
 \smallskip
 \noindent\fbox{\parbox{0.955\linewidth}{The ensemble's most valuable members are
@@ -541,16 +541,19 @@ number quoted here from cached out-of-fold predictions, so any citation can be
 checked by re-running rather than by trusting. All of it is submitted as
 \texttt{code.zip}, self-contained and needing no network access.
 
-{\footnotesize The interactive dashboard over all 210 models --- every one
+{\footnotesize An interactive dashboard over all 210 models --- every one
 sortable, the members plotted by accuracy against error correlation, and a
 builder that returns the exact held-out score of any subset of 60 you combine
---- is live now at
-\url{https://hamedkhosravi99.github.io/informs2026-dashboard/}. The same code
-and the full catalogue in four formats are at
-\url{https://github.com/HamedKhosravi99/informs2026-model-catalogue}, which is
-private while the competition is open and becomes public on 25 September 2026,
-once the deadline has passed, so the committee can inspect it directly. Nothing
-in either is needed to reproduce the submission.}
+--- ships inside \texttt{code.zip} as \texttt{catalogue/dashboard.html}, a
+single self-contained file that opens from disk with no server and no network,
+so nothing below is needed to read it. The same code and the full catalogue in
+four formats are also at
+\url{https://github.com/HamedKhosravi99/informs2026-model-catalogue}, with the
+dashboard served at
+\url{https://hamedkhosravi99.github.io/informs2026-dashboard/}. Both are private
+while the competition is open and become public on 25 September 2026, once the
+deadline has passed, so the committee can inspect them directly --- and we are
+glad to open either sooner on request if that suits the review schedule.}
 
 {\footnotesize
 \begin{thebibliography}{9}\small
