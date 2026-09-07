@@ -117,7 +117,7 @@ causality & every outage-derived column set to NaN after hour 71, \emph{before}
 nesting & anything learned across folds --- a scalar, a member set, a rule ---
   is fit on four folds and applied to the fifth &
   a choice made by looking at all five folds is itself a fitted
-  parameter~\cite{cawley};
+  parameter;
   Fig.~\ref{fig:conc} (right) shows what ignoring this costs \\[2pt]
 testing & paired county bootstrap: resample the 239 counties with
   replacement, apply the \emph{same} resample to both models &
@@ -245,7 +245,7 @@ F2 & mechanism & 67 & 0 & error is spread across scale, shape and timing, so no 
 F3 & target & 27 & 0 & $42.4\%$ zeros are cheap ($0.7\%$ of squared error); skew is expensive &
   $\sqrt{y}$-target beats raw by $6\%$ and beats log1p; the dual raw$/\sqrt{y}$ objective and metric-aligned hour weights transfer; Tweedie, quantile, hurdle and a likelihood-trained flow all lose on RMSE \\
 F4 & exposure & 27 & 0 & robust perturbation can manufacture distinct error bases &
-  storm jitter and mixup~\cite{zhang} survive as distinct bases; multi-origin and dropout variants do not \\
+  storm jitter and mixup survive as distinct bases; multi-origin and dropout variants do not \\
 F5 & estimation & 23 & 0 & 191 sequences/fold implies variance-limited estimators &
   seed and snapshot averaging improve nearly every model \emph{alone}; ten of ten fail to improve the blend \\
 F6 & adaptation & 7 & 12 & the per-county residual has out-of-fold $R^2\!\approx\!0$, so post-hoc correction should fail &
@@ -277,7 +277,7 @@ known-future weather so that none was tested where it is weakest. The
 2023--2026 exogenous-covariate family lands at $0.0095$--$0.0120$
 (PatchTST~\cite{nie} $0.0095$, TSMixer~\cite{tsmixer} $0.0098$,
 iTransformer~\cite{liu} $0.0102$, TimeXer~\cite{timexer} $0.0108$,
-XLinear~\cite{xlinear} $0.0111$, DLinear~\cite{zeng} $0.0120$) against $0.0088$--$0.0090$ for the recurrent
+XLinear $0.0111$, DLinear $0.0120$) against $0.0088$--$0.0090$ for the recurrent
 members. Only one architecture outside the recurrent family earned a seat, and
 not for its accuracy.
 
@@ -324,7 +324,7 @@ of the distribution, worse answers to the question asked.
 \textbf{Two-stage and hurdle models, tested three ways and rejected.} The
 obvious reading of $42\%$ zeros is a two-part model, and it is what the
 operational outage literature, dominated by tree ensembles on storm-level
-exposure features~\cite{wanik,nhess}, reaches for~\cite{thunder}. A perfect zero classifier would move the score
+exposure features, reaches for. A perfect zero classifier would move the score
 by $0.00003$, because those cells carry $0.7\%$ of the error. Measured, as a target
 factorisation: $P(y{>}0) \times E[y\,|\,y{>}0]$, fitted separately on the
 tabular member's rows, is worse on all four horizons than the single-stage
@@ -419,7 +419,7 @@ object, and they are the two least correlated members in the set. Doubling the
 existing physics weight does \emph{not} help, so these are new bases rather than
 more of the same one.
 
-\textbf{Improving a member can cost more than it buys.} Snapshot-ensembling~\cite{huang} one
+\textbf{Improving a member can cost more than it buys.} Snapshot-ensembling one
 member improved it from $0.00955$ to $0.00892$ --- its best score ever --- and
 made the ensemble significantly worse ($P{=}0.011$), because the technique drove
 its errors onto $A$'s, and $A$ is itself a snapshot ensemble. Re-running all ten
@@ -552,33 +552,15 @@ in either is needed to reproduce the submission.}
 
 {\footnotesize
 \begin{thebibliography}{9}\small
-\bibitem{zeng} A.~Zeng et al. Are transformers effective for time series
-forecasting? \emph{AAAI}, 2023.
 \bibitem{nie} Y.~Nie et al. A time series is worth 64 words: long-term
 forecasting with transformers. \emph{ICLR}, 2023.
 \bibitem{liu} Y.~Liu et al. iTransformer: inverted transformers are effective
 for time series forecasting. \emph{ICLR}, 2024.
 \bibitem{tan} M.~Tan et al. Are language models actually useful for time series
 forecasting? \emph{NeurIPS}, 2024.
-\bibitem{huang} G.~Huang et al. Snapshot ensembles: train 1, get M for free.
-\emph{ICLR}, 2017.
-\bibitem{zhang} H.~Zhang et al. mixup: beyond empirical risk minimization.
-\emph{ICLR}, 2018.
-\bibitem{cawley} G.~Cawley and N.~Talbot. On over-fitting in model selection and
-subsequent selection bias in performance evaluation. \emph{JMLR}, 11:2079--2107,
-2010.
 \bibitem{timexer} Y.~Wang et al. TimeXer. \emph{NeurIPS}, 2024.
-\bibitem{xlinear} Z.~Ma et al. XLinear. arXiv:2601.09237, 2026.
 \bibitem{tsmixer} S.-A. Chen et al. TSMixer. \emph{TMLR}, 2023.
 \bibitem{chronos2} A.~F. Ansari et al. Chronos-2. arXiv:2510.15821, 2025.
-\bibitem{wanik} D.~W. Wanik, E.~N. Anagnostou, B.~M. Hartman, M.~E.~B.
-Frediani, M.~Astitha. Storm outage modeling for an electric distribution network
-in Northeastern USA. \emph{Natural Hazards}, 2015.
-\bibitem{nhess} Probabilistic and machine learning methods for uncertainty
-quantification in power outage prediction due to extreme events.
-\emph{Nat. Hazards Earth Syst. Sci.} 23:1665, 2023.
-\bibitem{thunder} Operational early warning of thunderstorm-driven power outages
-from open data: a two-stage machine learning approach. arXiv:2510.03959, 2025.
 \end{thebibliography}}
 
 \end{document}
