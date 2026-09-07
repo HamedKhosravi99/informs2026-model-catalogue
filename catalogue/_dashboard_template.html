@@ -53,7 +53,10 @@ svg{display:block;width:100%;overflow:visible}
 button{background:var(--surface-1);color:var(--text-primary);border:1px solid var(--line);
   border-radius:6px;padding:6px 11px;font:inherit;font-size:12.5px;cursor:pointer}
 button:hover{border-color:var(--series-1);color:var(--series-1)}
-#picker label{font-size:12.5px;color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;gap:6px;padding:2px 0}
+#picker label{font-size:12.5px;color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;gap:6px;padding:1.5px 0;break-inside:avoid}
+.ghead{font-size:10.5px;text-transform:uppercase;letter-spacing:.055em;color:var(--text-muted);
+  font-weight:640;margin:11px 0 3px;break-inside:avoid;break-after:avoid}
+.ghead:first-child{margin-top:0}
 #picker label:hover{color:var(--text-primary)}
 #picker input{min-width:auto;margin:0}
 .res{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:8px}
@@ -136,16 +139,22 @@ cross-validation rank.</p>
 <div class="card"><svg id="rev" viewBox="0 0 900 340" role="img" aria-label="Naive versus nested scores"></svg></div>
 
 <h2>Build your own ensemble</h2>
-<p class="note">Tick any set of models and see what an equal-weight average of them actually scores.
-The numbers are <b>exact</b>, not interpolated: they come from the models' error cross-products, so
-each result is what you would have measured by running the combination. Try adding the best models
-one at a time and watch it stop helping.</p>
+<p class="note">Tick any set of the <b>60 models</b> below and see what an equal-weight average of
+them actually scores — including the pretrained foundation models, the two-stage and hurdle
+formulations, and every modern architecture we tried. The numbers are <b>exact</b>, not
+interpolated: they come from the models' error cross-products, so each result is what you would have
+measured by running that combination. Try adding the best models one at a time and watch it stop
+helping. <span class="dim">Conformal prediction appears in the catalogue but not here: it changes
+the interval, not the point forecast, so it cannot be an ensemble member. The MC-dropout sampler
+under <i>uncertainty</i> is the one uncertainty method that does emit a point forecast.</span></p>
 <div class="card">
-  <div id="picker" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:2px 10px;margin-bottom:10px"></div>
+  <div id="picker" style="columns:4 190px;column-gap:20px;margin-bottom:12px"></div>
   <div class="ctl" style="margin:0 0 10px">
     <button id="pick-ship">the shipped twelve</button>
     <button id="pick-best">five best alone</button>
     <button id="pick-div">five most diverse</button>
+    <button id="pick-found">foundation models</button>
+    <button id="pick-two">two-stage / hurdle</button>
     <button id="pick-none">clear</button>
   </div>
   <div id="yours"></div>
@@ -293,11 +302,11 @@ fetch('dashboard_data.json').then(r=>r.json()).then(D=>{
   /* ---- arc diagram: who is saying the same thing as whom ---- */
   const X2=D.extra, OB=X2.objs, byId=Object.fromEntries(OB.map((o,i)=>[o.id,i]));
   {const sv=document.getElementById('arc'),W=900,H=330,m={t:96,b:20,l:34,r:34};
-   const ord=OB.map((o,i)=>i).sort((a,b)=>OB[a].rmse-OB[b].rmse);
-   const px=i=>m.l+(ord.indexOf(i)/(OB.length-1))*(W-m.l-m.r), base=m.t;
+   const ord=OB.map((o,i)=>i).filter(i=>OB[i].feat).sort((a,b)=>OB[a].rmse-OB[b].rmse);
+   const px=i=>m.l+(ord.indexOf(i)/(ord.length-1))*(W-m.l-m.r), base=m.t;
    const col=o=>o.role==='tested'?'var(--series-3)':(o.role==='anchor'?'var(--series-2)':'var(--series-1)');
    const draw=th=>{sv.innerHTML='';let cnt=0;
-     for(let i=0;i<OB.length;i++)for(let j=i+1;j<OB.length;j++){
+     for(const i of ord)for(const j of ord){ if(j<=i)continue;
        const c=X2.corr[i][j]; if(c<th)continue; cnt++;
        const a=px(i),b=px(j),r=Math.abs(b-a)/2,mid=(a+b)/2;
        const strength=(c-th)/Math.max(1e-6,0.97-th);
@@ -307,14 +316,14 @@ fetch('dashboard_data.json').then(r=>r.json()).then(D=>{
      ord.forEach(i=>{const o=OB[i],x=px(i);
        const c=el('circle',{cx:x,cy:base,r:o.role==='tested'?4:5.5,fill:col(o),
          stroke:'var(--surface-2)','stroke-width':1.6}); c.style.cursor='pointer';
-       const deg=X2.corr[i].filter((v,j)=>j!==i&&v>=th).length;
+       const deg=ord.filter(j=>j!==i&&X2.corr[i][j]>=th).length;
        c.addEventListener('mousemove',e=>show(e,`<b>${o.label}</b><br>solo RMSE ${f5(o.rmse)}<br>`+
          `${deg} model${deg===1?'':'s'} agree above ${th.toFixed(2)}<br><span class="chip">${o.role}</span>`));
        c.addEventListener('mouseleave',hide); sv.append(c);
        const t=el('text',{x:x,y:base-11,class:'dlab','text-anchor':'start',
          transform:`rotate(-42 ${x} ${base-11})`,fill:o.role==='tested'?'var(--text-muted)':'var(--text-secondary)'});
        t.textContent=o.label; sv.append(t);});
-     document.getElementById('arcn').textContent=`${cnt} pair${cnt===1?'':'s'} of ${OB.length*(OB.length-1)/2}`;};
+     document.getElementById('arcn').textContent=`${cnt} pair${cnt===1?'':'s'} of ${ord.length*(ord.length-1)/2}`;};
    const sl=document.getElementById('arcth');
    const upd=()=>{document.getElementById('arcv').textContent=(+sl.value).toFixed(2);draw(+sl.value);};
    sl.addEventListener('input',upd); upd();}
@@ -353,11 +362,13 @@ fetch('dashboard_data.json').then(r=>r.json()).then(D=>{
   /* ---- exact ensemble builder (mean combination via the error Gram tensor) ---- */
   {const HK=['t01','t06','t24','t48'],pick=new Set(D.extra.ens.members.concat(['a3x25']));
    const pk=document.getElementById('picker');
-   OB.forEach(o=>{const id='ck_'+o.id;
-     pk.insertAdjacentHTML('beforeend',
-       `<label for="${id}"><input type="checkbox" id="${id}" data-id="${o.id}"${pick.has(o.id)?' checked':''}>`+
-       `<span style="color:${o.role==='tested'?'var(--series-3)':(o.role==='anchor'?'var(--series-2)':'var(--series-1)')}">&#9679;</span>`+
-       `${o.label} <span class="dim">${f5(o.rmse)}</span></label>`);});
+   X2.groups.forEach(g=>{
+     pk.insertAdjacentHTML('beforeend',`<div class="ghead">${g}</div>`);
+     OB.filter(o=>o.group===g).forEach(o=>{const id='ck_'+o.id;
+       pk.insertAdjacentHTML('beforeend',
+         `<label for="${id}"><input type="checkbox" id="${id}" data-id="${o.id}"${pick.has(o.id)?' checked':''}>`+
+         `<span style="color:${o.role==='tested'?'var(--series-3)':(o.role==='anchor'?'var(--series-2)':'var(--series-1)')}">&#9679;</span>`+
+         `${o.label} <span class="dim">${f5(o.rmse)}</span></label>`);});});
    const score=sel=>{const i=sel.map(x=>byId[x]),k=i.length;
      return HK.map(hk=>{let sum=0;const g=X2.gram[hk];
        for(const a of i)for(const b of i)sum+=g[a][b];
@@ -384,6 +395,9 @@ fetch('dashboard_data.json').then(r=>r.json()).then(D=>{
    document.getElementById('pick-best').onclick=()=>set(OB.slice().sort((a,b)=>a.rmse-b.rmse).slice(0,5).map(o=>o.id));
    document.getElementById('pick-div').onclick=()=>set(OB.map((o,i)=>[o.id,X2.corr[i].reduce((a,b)=>a+b,0)])
      .sort((a,b)=>a[1]-b[1]).slice(0,5).map(x=>x[0]));
+   const grp=g=>OB.filter(o=>o.group===g).map(o=>o.id);
+   document.getElementById('pick-found').onclick=()=>set(grp('foundation / pretrained'));
+   document.getElementById('pick-two').onclick=()=>set(grp('two-stage / hurdle'));
    document.getElementById('pick-none').onclick=()=>set([]);
    render();}
 

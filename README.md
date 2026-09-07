@@ -103,7 +103,7 @@ It carries six views:
   from the data, each drawn from what it scored when judged on the folds it was
   chosen on, to what it scored with that choice nested inside the folds. Every
   line goes the wrong way.
-- **Build your own ensemble.** Tick any set of models and get the exact per-horizon
+- **Build your own ensemble.** Tick any of 60 models — including the pretrained foundation models and the two-stage formulations — and get the exact per-horizon
   RMSE of their equal-weight average — recovered from the models' error
   cross-products, so it is what you would have measured by running the
   combination, not an approximation. Worth trying: the five best models *alone*
