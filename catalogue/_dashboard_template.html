@@ -391,6 +391,8 @@ fetch('dashboard_data.json').then(r=>r.json()).then(D=>{
      return HK.map(hk=>{let sum=0;const g=X2.gram[hk];
        for(const a of i)for(const b of i)sum+=g[a][b];
        return Math.sqrt(sum/(k*k)/X2.n[hk]);});};
+   const SHIPIDS=OB.filter(o=>o.group==='shipped ensemble').map(o=>o.id);
+   const isShipped=sel=>sel.length===SHIPIDS.length&&SHIPIDS.every(i=>sel.includes(i));
    const render=()=>{const sel=[...pk.querySelectorAll('input:checked')].map(c=>c.dataset.id);
      const box=document.getElementById('yours');
      if(sel.length===0){box.innerHTML='<div class="verdict">Pick at least one model.</div>';return;}
@@ -398,16 +400,25 @@ fetch('dashboard_data.json').then(r=>r.json()).then(D=>{
      const best=Math.min(...sel.map(x=>OB[byId[x]].rmse));
      const bestLab=OB[byId[sel[sel.map(x=>OB[byId[x]].rmse).indexOf(best)]]].label;
      box.innerHTML=`<div class="res">
-       <div><div class="v">${f5(mean)}</div><div class="k">your ensemble</div></div>
+       <div><div class="v">${f5(mean)}</div><div class="k">your set &mdash; <b>plain mean</b></div></div>
        <div><div class="v">${f5(h[0])}</div><div class="k">t+1</div></div>
        <div><div class="v">${f5(h[1])}</div><div class="k">t+6</div></div>
        <div><div class="v">${f5(h[2])}</div><div class="k">t+24</div></div>
        <div><div class="v">${f5(h[3])}</div><div class="k">t+48</div></div>
-       <div><div class="v">${sel.length}</div><div class="k">models averaged</div></div></div>
-       <div class="verdict">Best single model in your set: <b>${bestLab}</b> at ${f5(best)} —
+       <div><div class="v">${sel.length}</div><div class="k">models averaged</div></div>
+       <div><div class="v">${f5(D.baselines.final)}</div><div class="k">the <b>shipped</b> ensemble</div></div></div>
+       <div class="verdict">Best single model in your set: <b>${bestLab}</b> at ${f5(best)} &mdash;
        averaging ${mean<best?`beats it by ${((best-mean)*1e5).toFixed(1)}e-5`:`is <b>worse</b> by ${((mean-best)*1e5).toFixed(1)}e-5`}.
-       The shipped ensemble scores ${f5(D.extra.ens.rmse)}: it gives the anchor half the weight on its
-       own and combines the other eleven by amplitude and shape rather than a plain mean.</div>`;};
+       ${isShipped(sel)
+         ? `<br><b>These are the twelve shipped models &mdash; but this is not the shipped ensemble.</b>
+            Weighting them equally scores ${f5(mean)}; the submission scores <b>${f5(D.baselines.final)}</b>,
+            which is better by ${((mean-D.baselines.final)*1e5).toFixed(1)}e-5. Equal weighting is the
+            wrong rule for this set: it hands the anchor 1/12 when the submission gives it <b>one half</b>,
+            and it averages in raw space instead of by amplitude and shape.`
+         : `<br>This builder always takes a <b>plain equal-weight mean</b>, so each model you tick carries
+            1/${sel.length} of the forecast. The submission does not: the anchor holds <b>half</b> on its
+            own and the other eleven share the rest at 1&frasl;22 each, combined by amplitude and shape.
+            That is why subsets that look good here need not beat ${f5(D.baselines.final)}.`}</div>`;};
    pk.addEventListener('change',render);
    const set=ids=>{pk.querySelectorAll('input').forEach(c=>c.checked=ids.includes(c.dataset.id));render();};
    document.getElementById('pick-ship').onclick=()=>set(D.extra.ens.members.concat(['a3x25']));
