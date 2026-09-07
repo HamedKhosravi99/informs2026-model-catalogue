@@ -4,12 +4,15 @@ Complete record of the modelling work for the INFORMS 2026 Data Mining Society
 Data Challenge: every experiment we ran, how each was classified, what it scored,
 and the code that produced all of it.
 
-### The dashboard
+### → [**Open the interactive dashboard**](https://claude.ai/code/artifact/80c787af-5691-4296-88d4-18d97b978e09)
 
-[`catalogue/dashboard.html`](catalogue/dashboard.html) — all 219 runs, the
-quality-versus-diversity finding, the family breakdown, and a run table sortable
-by every column. It is a single self-contained file: clone or download the repo
-and open it in any browser. No server, no dependencies, works offline.
+All 219 runs, the quality-versus-diversity finding, the redundancy arcs, the
+selection-reversal slopegraph, and an ensemble builder you can drive yourself.
+
+The same page is committed at
+[`catalogue/dashboard.html`](catalogue/dashboard.html) — a single self-contained
+file with the data inlined, so it also opens straight from disk with no server
+and no dependencies:
 
 ```bash
 git clone git@github.com:HamedKhosravi99/informs2026-model-catalogue.git
@@ -74,7 +77,7 @@ nothing is hand-typed.
 
 | file | what it is |
 |---|---|
-| [**`dashboard.html`**](catalogue/dashboard.html) | interactive; open it locally, no server needed |
+| [**dashboard**](https://claude.ai/code/artifact/80c787af-5691-4296-88d4-18d97b978e09) · [`dashboard.html`](catalogue/dashboard.html) | interactive; the hosted copy opens in a browser, the local one needs no server |
 | [`CATALOGUE.md`](catalogue/CATALOGUE.md) | browsable tables, grouped by intervention family |
 | [`catalogue.pdf`](catalogue.pdf) | the same content, landscape, in the repository root |
 | `catalogue.tex` | LaTeX source |
