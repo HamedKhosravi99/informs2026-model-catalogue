@@ -4,14 +4,16 @@ Complete record of the modelling work for the INFORMS 2026 Data Mining Society
 Data Challenge: every experiment we ran, how each was classified, what it scored,
 and the code that produced all of it.
 
-### → [**Open the interactive dashboard**](https://hamedkhosravi99.github.io/informs2026-model-catalogue/)
+### → [**Open the interactive dashboard**](https://hamedkhosravi99.github.io/informs2026-dashboard/)
 
 All 210 runs, the quality-versus-diversity finding, the redundancy arcs, the
 selection-reversal slopegraph, and an ensemble builder you can drive yourself.
 
-That link is GitHub Pages, served from [`docs/`](docs/). **It goes live when this
-repository becomes public on 25 September 2026**, once the competition deadline
-has passed. Until then, the same page is committed at
+That link is **already live**. It is served by GitHub Pages out of a separate
+public repository, [`informs2026-dashboard`](https://github.com/HamedKhosravi99/informs2026-dashboard),
+which contains nothing but the page itself. *This* repository — the code, the
+report and the full catalogue — stays private until 25 September 2026, once the
+competition deadline has passed. The identical page is committed here at
 [`catalogue/dashboard.html`](catalogue/dashboard.html) — a single self-contained
 file with the data inlined, so it opens straight from disk with no server and no
 dependencies:
@@ -62,17 +64,18 @@ cross-validation on the 239 training counties.
 
 ## Going public on 25 September 2026
 
-The report submitted to the competition cites this repository and the Pages URL
-above, both of which become reachable once the deadline passes. Two commands:
+The report cites both the dashboard and this repository. The dashboard is
+already reachable; this repository opens once the deadline passes:
 
 ```bash
 gh repo edit HamedKhosravi99/informs2026-model-catalogue --visibility public
-gh api -X POST repos/HamedKhosravi99/informs2026-model-catalogue/pages \
-  -f 'source[branch]=main' -f 'source[path]=/docs'
 ```
 
-GitHub Pages cannot serve a private repository on a free plan, which is why the
-second command has to wait for the first.
+GitHub Pages cannot serve a private repository on a free plan, and a public
+repository has no per-file access control — which is why the page lives in its
+own public repository and the code does not. To republish the dashboard after
+regenerating it, push `catalogue/dashboard.html` to that repository as
+`index.html`; `docs/index.html` here is kept in sync as the archival copy.
 
 ## Repository layout
 
@@ -94,7 +97,7 @@ nothing is hand-typed.
 
 | file | what it is |
 |---|---|
-| [**dashboard**](https://hamedkhosravi99.github.io/informs2026-model-catalogue/) · [`dashboard.html`](catalogue/dashboard.html) | interactive; the hosted copy opens in a browser, the local one needs no server |
+| [**dashboard**](https://hamedkhosravi99.github.io/informs2026-dashboard/) · [`dashboard.html`](catalogue/dashboard.html) | interactive; the hosted copy opens in a browser, the local one needs no server |
 | [`CATALOGUE.md`](catalogue/CATALOGUE.md) | browsable tables, grouped by intervention family |
 | [`catalogue.pdf`](catalogue.pdf) | the same content, landscape, in the repository root |
 | `catalogue.tex` | LaTeX source |

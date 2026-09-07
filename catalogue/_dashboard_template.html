@@ -109,13 +109,13 @@ a replacement test. Hover any point.</p>
 </div>
 
 <h2>Where the effort went</h2>
-<p class="note">Runs per intervention family. Bar length is the number of controlled runs; the label
+<p class="note">Models per intervention family. Bar length is the number of controlled models; the label
 gives the best out-of-fold score reached inside that family. Families are not comparable on
 &ldquo;best&rdquo; alone — each starts from a different control.</p>
-<div class="card"><svg id="fam" viewBox="0 0 900 300" role="img" aria-label="Runs per family"></svg></div>
+<div class="card"><svg id="fam" viewBox="0 0 900 300" role="img" aria-label="Models per family"></svg></div>
 
-<h2>What every scored run looks like</h2>
-<p class="note">Distribution of every scored run, with the reference points marked. Most of the
+<h2>What every scored model looks like</h2>
+<p class="note">Distribution of every scored model, with the reference points marked. Most of the
 distribution sits between the naive baselines and the final model: the search space is narrow, which
 is why selection discipline mattered more than raw exploration.</p>
 <div class="card"><svg id="hist" viewBox="0 0 900 250" role="img" aria-label="Score distribution"></svg></div>
@@ -171,12 +171,12 @@ in the catalogue but cannot be a member at all: it changes the interval, not the
   <div id="yours"></div>
 </div>
 
-<h2>Every run</h2>
+<h2>Every model</h2>
 <p class="note"><b>Click any column heading to sort</b> — click again to reverse. Filter by text or
-family below. Shipped members are highlighted. <span class="dim">&mdash; means the run errored,
+family below. Shipped members are highlighted. <span class="dim">&mdash; means the model errored,
 diverged, or predates the standardised scorer.</span></p>
 <div class="ctl">
-  <input id="q" placeholder="filter by code, name, mechanism, objective…" aria-label="Filter runs">
+  <input id="q" placeholder="filter by code, name, mechanism, objective…" aria-label="Filter models">
   <select id="fam-f" aria-label="Filter by family"><option value="">all families</option></select>
   <label style="font-size:12.5px;color:var(--text-secondary)"><input type="checkbox" id="onlyship" style="min-width:auto"> shipped only</label>
   <span id="count" class="dim" style="font-size:12.5px"></span>
@@ -202,7 +202,7 @@ const el=(n,a={})=>{const e=document.createElementNS(SV,n);for(const k in a)e.se
 fetch('dashboard_data.json').then(r=>r.json()).then(D=>{
   const B=D.baselines;
   document.getElementById('tiles').innerHTML=[
-    [D.meta.n,'runs recorded'],[D.meta.scored,'carry a score'],
+    [D.meta.n,'models recorded'],[D.meta.scored,'carry a score'],
     [f5(B.final),'final ensemble'],[f5(B.anchor),'best single model'],
     [f5(B.persistence),'decayed persistence'],[f5(B.zeros),'all-zeros']
   ].map(([v,k])=>`<div class="tile"><div class="v">${v}</div><div class="k">${k}</div></div>`).join('');
@@ -277,11 +277,11 @@ fetch('dashboard_data.json').then(r=>r.json()).then(D=>{
    F.forEach((f,i)=>{const y=m.t+i*bh,h=Math.min(bh-6,22);
      const r=el('rect',{x:m.l,y:y+(bh-h)/2,width:Math.max(2,X(f.runs)),height:h,rx:4,class:'bar'});
      r.style.cursor='pointer';
-     r.addEventListener('mousemove',e=>show(e,`<b>${f.family}</b><br>${f.runs} runs<br>best ${f5(f.best)}<br>median ${f5(f.median)}<br>${f.shipped} shipped`));
+     r.addEventListener('mousemove',e=>show(e,`<b>${f.family}</b><br>${f.runs} models<br>best ${f5(f.best)}<br>median ${f5(f.median)}<br>${f.shipped} shipped`));
      r.addEventListener('mouseleave',hide);s.append(r);
      const lb=el('text',{x:m.l-9,y:y+bh/2+4,class:'axlab','text-anchor':'end'});lb.textContent=f.family;s.append(lb);
      const vl=el('text',{x:m.l+X(f.runs)+8,y:y+bh/2+4,class:'dlab'});
-     vl.textContent=`${f.runs} run${f.runs>1?'s':''} · best ${f5(f.best)}`;s.append(vl);});}
+     vl.textContent=`${f.runs} model${f.runs>1?'s':''} · best ${f5(f.best)}`;s.append(vl);});}
 
   /* ---- histogram ---- */
   {const s=document.getElementById('hist'),W=900,H=250,m={t:26,r:20,b:40,l:46};
@@ -293,7 +293,7 @@ fetch('dashboard_data.json').then(r=>r.json()).then(D=>{
    bins.forEach((c,i)=>{if(!c)return;const x=X(lo+i*bw),w=(W-m.l-m.r)/nb-2;
      const r=el('rect',{x,y:Y(c),width:w,height:H-m.b-Y(c),rx:3,class:'bar'});
      r.style.cursor='pointer';
-     r.addEventListener('mousemove',e=>show(e,`<b>${c} run${c>1?'s':''}</b><br>RMSE ${(lo+i*bw).toFixed(4)}–${(lo+(i+1)*bw).toFixed(4)}`));
+     r.addEventListener('mousemove',e=>show(e,`<b>${c} model${c>1?'s':''}</b><br>RMSE ${(lo+i*bw).toFixed(4)}–${(lo+(i+1)*bw).toFixed(4)}`));
      r.addEventListener('mouseleave',hide);s.append(r);});
    const refs=[[B.final,'final'],[B.anchor,'best single'],[B.persistence,'persistence']];
    let lastx=-99,row=0;
@@ -304,7 +304,7 @@ fetch('dashboard_data.json').then(r=>r.json()).then(D=>{
        stroke:'var(--surface-2)','stroke-width':3,'paint-order':'stroke fill'});
      t.textContent=l;s.append(t);});
    if(over){const t=el('text',{x:W-m.r,y:m.t-9,class:'dlab','text-anchor':'end',fill:'var(--text-muted)'});
-     t.textContent=`${over} run${over>1?'s':''} above ${hi.toFixed(3)} · all-zeros ${B.zeros.toFixed(5)} off scale`;s.append(t);}
+     t.textContent=`${over} model${over>1?'s':''} above ${hi.toFixed(3)} · all-zeros ${B.zeros.toFixed(5)} off scale`;s.append(t);}
    for(let i=0;i<=5;i++){const xx=lo+(hi-lo)*i/5;const t=el('text',{x:X(xx),y:H-m.b+17,class:'ax','text-anchor':'middle'});
      t.textContent=xx.toFixed(3);s.append(t);}
    const xl=el('text',{x:(m.l+W-m.r)/2,y:H-6,class:'axlab','text-anchor':'middle'});
@@ -431,7 +431,7 @@ fetch('dashboard_data.json').then(r=>r.json()).then(D=>{
       <td>${f5(x.rmse)}</td><td>${f5(x.h0)}</td><td>${f5(x.h1)}</td><td>${f5(x.h2)}</td>
       <td>${f5(x.h3)}</td><td style="text-align:left">${x.obj}</td>
       <td>${x.mae==null?'—':x.mae.toFixed(5)}</td><td>${x.secs??'—'}</td></tr>`).join('');
-    document.getElementById('count').textContent=`${r.length} of ${rows.length} runs`;
+    document.getElementById('count').textContent=`${r.length} of ${rows.length} models`;
     document.querySelectorAll('#tbl th').forEach(h=>{
       h.classList.remove('up','dn');
       if(h.dataset.k===sk)h.classList.add(sd===1?'up':'dn');});};

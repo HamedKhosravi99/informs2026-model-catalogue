@@ -6,11 +6,17 @@
 \usepackage{times}
 \usepackage{amsmath,amssymb}
 \usepackage{booktabs}
+\usepackage{array}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
 \usepackage{graphicx}
 \usepackage[table]{xcolor}
 \usepackage[colorlinks=true,linkcolor=black,citecolor=black,urlcolor=black]{hyperref}
 \usepackage{titlesec}
 \usepackage{caption}
+\usepackage{stfloats}                  % allow table*/figure* at the bottom in twocolumn
+\setcounter{topnumber}{3}\setcounter{bottomnumber}{2}\setcounter{totalnumber}{4}
+\renewcommand{\topfraction}{0.92}\renewcommand{\bottomfraction}{0.7}
+\renewcommand{\textfraction}{0.06}\renewcommand{\floatpagefraction}{0.75}
 \captionsetup{font=small,labelfont=bf,skip=3pt}
 \titlespacing*{\section}{0pt}{6pt}{3pt}
 \titlespacing*{\subsection}{0pt}{5pt}{2pt}
@@ -23,7 +29,9 @@
 
 \title{\vspace{-2.2em}\textbf{What Is Recoverable?}\\[2pt]
 \large An Error-Budget Approach to County-Transfer\\Outage Forecasting}
-\author{\normalsize INFORMS 2026 DMS Data Challenge}
+\author{\normalsize\textbf{Team Bee2}\\[3pt]
+\normalsize Hamed Khosravi (team leader) \qquad Melika Baghi\\[2pt]
+\footnotesize INFORMS 2026 Data Mining Society Data Challenge}
 \date{\vspace{-1em}}
 
 \begin{document}
@@ -42,12 +50,16 @@ dominant mode, and finds that whatever a model still gets wrong about a county's
 overall magnitude is not recoverable from any legal feature we could construct
 (out-of-fold $R^2\!\approx\!0$; $-0.09$ with 219 features and boosted trees).
 That diagnosis was turned into falsifiable predictions for eight
-\emph{intervention families}, and 218 controlled runs plus a further 28 paired
+\emph{intervention families}, and 210 controlled models plus a further 28 paired
 contrasts were used to test them. The resulting forecaster is an equal-weight
-ensemble of eleven members with \textbf{no fitted combination parameters},
-scoring \textbf{0.00835} (mean of the four horizon RMSEs; a reporting summary,
-not the official ranking statistic) against \textbf{0.01632} for all-zeros and
-\textbf{0.01110} for decayed persistence.
+$50/50$ blend of two halves --- eleven diverse models sharing one half, and a
+single high-variance-reduction model holding the other --- with \textbf{no
+fitted combination parameters}, scoring \textbf{0.00838} (mean of the
+four horizon RMSEs with the configuration choice itself nested; a reporting
+summary, not the official ranking statistic) against \textbf{0.01632} for
+all-zeros and \textbf{0.01110} for decayed persistence. The full ledger, the
+code, and an interactive dashboard over all 210 models are in the repository named
+in §\ref{sec:repro}.
 
 \smallskip
 \noindent\fbox{\parbox{0.955\linewidth}{The ensemble's most valuable members are
@@ -55,23 +67,27 @@ its \emph{worst} models: the three stock-flow models are the weakest of the
 eleven and the three least correlated with the rest, and no substitute survived
 a replacement test. Separately, the largest single improvement we made to a
 member made the ensemble \emph{significantly worse} ($P{=}0.011$), and ten
-further variance-reduction runs reproduced that pattern. Both follow from one
-property of a 239-county sample: an ensemble gains from a component's
-\textbf{error being different, not smaller}.}}
+further variance-reduction experiments reproduced that pattern. Both follow from one
+property of a 239-county sample: a member's marginal value to the ensemble is
+\textbf{not determined by its solo RMSE}, and residual complementarity can
+dominate it.}}
 \end{abstract}
 
 \section{Task, protocol, and diagnosis}
 \label{sec:diag}
 
-\textbf{Task.} Each county has a 216-hour event window. Hours 0--71 are observed;
-outage variables are withheld thereafter and must be predicted for hours
-73--215, the 143 target hours the four submission columns address. Weather is
-given for all 216 hours, so the exogenous drivers are known over the forecast
-window --- the horizon is twice the context, and the covariates carry the
-dominant signal. Training and test counties are disjoint (239 / 63), so this is
-\emph{cross-sectional} transfer: a county's own outage history is never
-available at inference. $42.4\%$ of scored cells are exactly zero and the target
-has skew $8.8$.
+\textbf{Task.} Each county has a 216-hour event window. Hours 0--71 are
+observed for every county, test counties included; outage variables are withheld
+from hour 72 onward. The submission is indexed by 144 origins per county
+(hours 72--215) and four horizons, so the scored targets span hours 73--215 ---
+143 distinct hours, since hour 72 is an origin but never a target. Weather is
+given for all 216 hours, so the exogenous drivers are known across the forecast
+window: the horizon is twice the context and the covariates carry the dominant
+signal. Training and test counties are disjoint (239 / 63), so this is
+\emph{cross-sectional} transfer --- the model sees a test county's first 72
+hours but never its storm outcome, and no post-origin outage value is available
+at inference. $42.4\%$ of scored cells are exactly zero and the target has skew
+$8.8$.
 
 \textbf{Metric.} RMSE is computed separately for each of four horizons
 ($t{+}1,6,24,48$\,h) over $9009/8694/7560/6048$ valid cells, and teams are
@@ -80,13 +96,43 @@ official scalar; the mean of the four RMSEs used throughout this report is a
 reporting convenience, and we verify that every design decision improves all
 four horizons rather than only the mean.
 
-\textbf{Protocol.} Five-fold county-holdout cross-validation, stratified by
-state $\times$ severity. All outage-derived columns are set to NaN after hour 71
-\emph{before} feature construction, so validation and deployment share one code
-path; overwriting every post-origin outage value with garbage changes
-predictions by exactly $0.0$. Anything learned across folds --- a scalar, a
-member set, a rule --- is fit on four folds and applied to the fifth, and we
-report the nested figure wherever a choice was made by looking at scores.
+\textbf{Protocol.} Table~\ref{tab:proto} is the whole of it. Every number in
+this report was produced under it, unchanged, from the first model to the last;
+nothing below is a figure we could have obtained by relaxing one of its rows.
+
+\begin{table}[b]\footnotesize\centering
+\setlength{\tabcolsep}{3.2pt}
+\begin{tabular}{@{}L{1.42cm}L{3.10cm}L{3.72cm}@{}}
+\toprule
+& what we do & why it is the right choice here \\
+\midrule
+validation & five-fold cross-validation holding out \emph{counties}, stratified
+  by state $\times$ severity &
+  the scored set is 63 counties disjoint from training, so folds must withhold
+  counties, not hours \\[2pt]
+causality & every outage-derived column set to NaN after hour 71, \emph{before}
+  features are built &
+  validation and deployment share one code path; overwriting every post-origin
+  outage value with garbage moves predictions by exactly $0.0$ \\[2pt]
+nesting & anything learned across folds --- a scalar, a member set, a rule ---
+  is fit on four folds and applied to the fifth &
+  a choice made by looking at all five folds is itself a fitted
+  parameter~\cite{cawley};
+  Fig.~\ref{fig:conc} (right) shows what ignoring this costs \\[2pt]
+testing & paired county bootstrap: resample the 239 counties with
+  replacement, apply the \emph{same} resample to both models &
+  pairing removes the county draw, which is far larger than any margin we
+  test; we report the win fraction and a percentile interval \\[2pt]
+statistic & per-horizon RMSE at $t{+}1,6,24,48$\,h; the mean of the four is a
+  reporting convenience only &
+  the official ranking is by average rank \emph{within} each horizon, so every
+  decision is checked on all four columns \\
+\bottomrule
+\end{tabular}
+\caption{The validation protocol, fixed before the experiments and never
+varied. Four of the five rows cost us results we would otherwise have claimed.}
+\label{tab:proto}
+\end{table}
 
 \textbf{Diagnosis.} Decomposing the residual of an early ensemble by substituting
 each of a county's true scale, shape and timing in turn gives roughly
@@ -121,43 +167,107 @@ fold is a small-sample regime. The rest of the paper tests those predictions.
 
 An experiment is classified by the \emph{contrast} it was run to test, not by
 the properties of the model it produced. A shipped member may be a bi-GRU with a
-dual objective and snapshot averaging; the run that admitted it changed exactly
-one of those against a control. Eight families exhaust the interventions
-available, plus two book-keeping codes: \textbf{P} for procedures whose object
-is choosing or evaluating rather than predicting, and \textbf{X} for historical
-runs that deliberately changed more than one stage and therefore cannot serve as
-clean evidence for either. Table~\ref{tab:fam} is the experimental record;
-\texttt{family\_ledger.py} regenerates the counts from the run log.
+dual objective and snapshot averaging; the experiment that admitted it changed exactly
+one of those against a control. Eight mutually exclusive families exhaust our
+experimental ledger:
 
-\begin{table*}[t]\small\centering
-\begin{tabular}{@{}llrp{5.0cm}p{5.4cm}@{}}
+\smallskip
+\noindent\textbf{F1} signal $\cdot$ \textbf{F2} mechanism $\cdot$ \textbf{F3}
+target $\cdot$ \textbf{F4} exposure $\cdot$ \textbf{F5} estimation $\cdot$
+\textbf{F6} adaptation $\cdot$ \textbf{F7} combination $\cdot$ \textbf{F8}
+uncertainty
+\smallskip
+
+\noindent plus two book-keeping codes: \textbf{P} for procedures whose object is
+choosing or evaluating rather than predicting, and \textbf{X} for models that
+deliberately changed more than one stage and so cannot serve as clean evidence
+for either.
+
+What makes the eight mutually exclusive is that they are the \emph{stages of a
+single pipeline}, in order: Table~\ref{tab:sep} names the stage each one owns.
+A model may of course combine several previously accepted changes --- most of
+the shipped ones do --- but the family records the one contrast that admitted
+it, so no model is counted twice. Table~\ref{tab:fam} is the record;
+\texttt{family\_ledger.py} regenerates it from the experiment log. Four
+families --- F1, F2, F5 and F6 --- had the \emph{direction} of their outcome
+written down before the corresponding models existed; the rest complete the
+ledger.
+
+\begin{table}[t]\footnotesize\centering
+\setlength{\tabcolsep}{3.4pt}
+\begin{tabular}{@{}l L{1.60cm} L{2.06cm} L{1.98cm}@{}}
 \toprule
-& family & runs & prediction from the diagnosis & what the contrasts showed \\
+& stage it changes & the question it asks & an example contrast \\
 \midrule
-F1 & signal & 47 & the missing quantity is not in the features, so added information should return little &
-  external statics and sub-county weather help the tabular member; the same channels \emph{lose} in 3/3 sequence models; retrieved analogs fail \\
-F2 & mechanism & 69 & error is spread across scale/shape/timing, so no function class should capture it &
-  5 of 6 architecture families land at or behind a plain GRU; Chronos-2 zero-shot scores worse than predicting zero; a mediocre patch transformer is retained only because it fails differently \\
-F3 & target & 27 & $42\%$ zeros are cheap; skew is expensive &
-  $\sqrt{}$-target beats raw by $6\%$ and log1p; the dual raw$/\sqrt{}$ objective and metric-aligned hour weights transfer; Tweedie, quantile and hurdle heads all lose on RMSE while winning on MAE \\
-F4 & exposure & 32 & robust perturbation can manufacture diverse errors &
-  storm jitter and mixup survive as distinct bases; multi-origin and dropout variants do not \\
-F5 & estimation & 23 & 191 sequences/fold implies variance-limited estimators &
-  seed and snapshot averaging improve nearly every model \emph{alone}; ten of ten fail to improve the ensemble \\
-F6 & adaptation & 6\,+\,12 & the residual multiplier has $R^2\!\approx\!0$, so post-hoc correction should fail &
-  0 of 12 corrections help: isotonic, power-law, per-hour curves, severity multipliers, zero gates, county gates. Only a mechanism-backed quiet-tail scalar survives \\
-F7 & combination & 4\,+\,14 & with no dominant mode, complementary residuals should matter &
-  fitted weights, NNLS, distillation and subset selection all reverse under nesting; a parameter-free amplitude$\times$shape rule wins \\
-F8 & uncertainty & 1\,+\,2 & orthogonal to the point metric &
-  split-conformal intervals reach $0.900$ coverage at every horizon; they do not change RMSE \\
-\midrule
-P & protocol & 4 & --- & Ray and Optuna searches; tuned configurations do not beat the untuned control \\
-X & compound & 5 & --- & changed two stages at once; retained in the ledger, excluded from family evidence \\
+\textbf{F1} & what goes in & does more information help? & $+$ external statics \\
+\textbf{F2} & how inputs map to outputs & does another function class help? & GRU $\to$ PatchTST \\
+\textbf{F3} & what is predicted & does another target scale help? & $y \to \sqrt{y}$ \\
+\textbf{F4} & what it trains on & does perturbing exposure help? & $+$ storm jitter \\
+\textbf{F5} & how it is estimated & does less estimator variance help? & 1 seed $\to$ 25 \\
+\textbf{F6} & what happens afterwards & does correcting the output help? & isotonic recalibration \\
+\textbf{F7} & how models are pooled & does another combination rule help? & mean $\to$ amp.$\times$shape \\
+\textbf{F8} & what is claimed & does the stated interval cover? & split conformal \\
 \bottomrule
 \end{tabular}
-\caption{The 218 scored runs, recoded by the contrast each tested; ``$+$'' counts
-paired contrasts evaluated against the blend rather than as solo scores. The
-diagnosis predicted the sign of F1, F2, F5 and F6 before those runs existed.}
+\caption{The eight families are the eight stages of one forecasting pipeline,
+which is what makes them mutually exclusive: a controlled experiment changes
+exactly one stage and holds the other seven fixed. This is why an experiment is
+classified by its \emph{contrast} and not by the model it produced.}
+\label{tab:sep}
+\end{table}
+
+\begin{figure*}[b]
+\centering
+\includegraphics[width=\textwidth]{fig4_procedure.png}
+\caption{The whole procedure. \textbf{(a)} A residual budget measured before any
+model existed allocated attention across eight families; solid bars are models
+scored on their own, hatched bars are paired contrasts against the blend.
+\textbf{(b)} All 210 models, by class and by score under the single protocol of
+Table~\ref{tab:proto}; the twelve that shipped are ringed. Only the four
+pretrained forecasters fall off the axis --- they lose to predicting zero
+everywhere. \textbf{(c)} What survived: one heavily averaged anchor holding half
+the forecast, eleven dissimilar models sharing the other half, one quiet-tail
+scalar, and no fitted combination weight anywhere.}
+\label{fig:proc}
+\end{figure*}
+
+
+\begin{table*}[!t]\small\centering
+\begin{tabular}{@{}llccL{4.55cm}L{5.25cm}@{}}
+\toprule
+& family & models & paired & diagnostic implication & what the contrasts showed \\
+& & scored & contrasts & & \\
+\midrule
+F1 & signal & 45 & 0 & the residual is unrecoverable from the feature sets tested; with 191 sequences/fold, extra channels should have small or negative marginal value in high-capacity models &
+  external statics and sub-county weather help the tabular member; the same channels \emph{lose} in 3/3 sequence models, which is the capacity asymmetry the hypothesis predicts; retrieved analogs fail \\
+F2 & mechanism & 67 & 0 & error is spread across scale, shape and timing, so no function-class substitution should unlock a step change &
+  5 of 6 architecture families land at or behind a plain GRU; Chronos-2 zero-shot scores worse than predicting zero; a mediocre patch transformer is retained only because it fails differently \\
+F3 & target & 27 & 0 & $42.4\%$ zeros are cheap ($0.7\%$ of squared error); skew is expensive &
+  $\sqrt{y}$-target beats raw by $6\%$ and beats log1p; the dual raw$/\sqrt{y}$ objective and metric-aligned hour weights transfer; Tweedie, quantile, hurdle and a likelihood-trained flow all lose on RMSE \\
+F4 & exposure & 27 & 0 & robust perturbation can manufacture distinct error bases &
+  storm jitter and mixup~\cite{zhang} survive as distinct bases; multi-origin and dropout variants do not \\
+F5 & estimation & 23 & 0 & 191 sequences/fold implies variance-limited estimators &
+  seed and snapshot averaging improve nearly every model \emph{alone}; ten of ten fail to improve the blend \\
+F6 & adaptation & 7 & 12 & the per-county residual has out-of-fold $R^2\!\approx\!0$, so post-hoc correction should fail &
+  0 of 12 corrections help: isotonic, power-law, per-hour curves, severity multipliers, and both the zero gate and the county gate. Only a mechanism-backed quiet-tail scalar survives \\
+F7 & combination & 4 & 14 & with no dominant error mode, complementary residuals should matter &
+  fitted weights, NNLS, distillation and subset selection all reverse under nesting; a parameter-free amplitude$\times$shape rule wins \\
+F8 & uncertainty & 1 & 2 & orthogonal to the point metric &
+  split-conformal intervals reach $0.900$ coverage at every horizon and leave RMSE unchanged \\
+\midrule
+P & protocol & 4 & 0 & \emph{book-keeping, not a hypothesis} & Ray and Optuna searches; tuned configurations do not beat the untuned control \\
+X & compound & 5 & 0 & \emph{book-keeping, not a hypothesis} & changed two stages at once; kept in the ledger, excluded from family evidence \\
+\midrule
+& \textbf{total} & \textbf{210} & \textbf{28} & & \\
+\bottomrule
+\end{tabular}
+\caption{The experimental ledger; nine further attempts crashed on a code fault
+without producing output and are excluded. \emph{Models scored} each have their
+own out-of-fold score. \emph{Paired contrasts} are tests of a change measured
+against the shipped ensemble rather than on its own --- a combination rule or a
+post-hoc correction has no solo score to report, so it can only be evaluated
+this way; a $0$ means the family contains no such test, not a missing entry.
+F1, F2, F5 and F6 had their direction recorded before those models existed.}
 \label{tab:fam}
 \end{table*}
 
@@ -165,25 +275,35 @@ diagnosis predicted the sign of F1, F2, F5 and F6 before those runs existed.}
 Nineteen architectures were run on this protocol, each adapted to consume the
 known-future weather so that none was tested where it is weakest. The
 2023--2026 exogenous-covariate family lands at $0.0095$--$0.0120$
-(PatchTST $0.0095$, TSMixer $0.0098$, iTransformer $0.0102$, TimeXer $0.0108$,
-XLinear $0.0111$, DLinear $0.0120$) against $0.0088$--$0.0090$ for the recurrent
-members. A conditional normalizing flow trained by maximum likelihood, using its
-sample mean as the point forecast, reaches $0.0099$ --- respectable, and still
-not admitted, because RMSE rewards the conditional mean and an MSE-trained
-network estimates it directly. Chronos-2, a covariate-aware pretrained
-forecaster, scores $0.0213$ zero-shot with our 23 weather covariates and
-$0.0201$ without them: \emph{worse than predicting zero everywhere} $(0.0163)$.
-The failure is diagnosable rather than mysterious --- it places non-zero mass
-almost everywhere, $3.2\%$ exact zeros against $42.4\%$ in the truth --- and it
-is also inadmissible under the rules, since a pretrained checkpoint is external
-data. Only one architecture outside the recurrent family earned a seat, and not
-for its accuracy.
+(PatchTST~\cite{nie} $0.0095$, TSMixer~\cite{tsmixer} $0.0098$,
+iTransformer~\cite{liu} $0.0102$, TimeXer~\cite{timexer} $0.0108$,
+XLinear~\cite{xlinear} $0.0111$, DLinear~\cite{zeng} $0.0120$) against $0.0088$--$0.0090$ for the recurrent
+members. Only one architecture outside the recurrent family earned a seat, and
+not for its accuracy.
+
+\textbf{Foundation models, measured rather than dismissed.} The obvious modern
+move is a pretrained forecaster --- a family whose usefulness for forecasting
+has been questioned on other benchmarks~\cite{tan} --- and the obvious objection --- that these models
+assume univariate input with no known future --- stopped being true with the
+covariate-aware generation, so we ran one. \textbf{Chronos-2}~\cite{chronos2} (120M) scores
+$0.0213$ zero-shot given our 23 weather covariates and $0.0201$ without them:
+both \emph{worse than predicting zero everywhere} $(0.0163)$, and the covariates
+make it worse rather than better. The failure is diagnosable --- it places
+non-zero mass almost everywhere, $3.2\%$ exact zeros against $42.4\%$ in the
+truth, so it cannot represent a target silent on nearly half its cells. Four
+tabular foundation models (TabPFN, TabDPT, TabICLv2, Mitra) were prepared as
+drop-in learners for the tabular member on its exact rows; two are gated behind
+a licence or a GPU, and the rest were stopped once the sequence result made the
+outcome clear. None is shippable regardless: a checkpoint pretrained on outside
+corpora is external data of a kind the self-contained-code requirement does not
+admit. We report the number because ``foundation models do not transfer here''
+is worth more as a measurement than as an assertion.
 
 \textbf{F3, in detail, because skew dominates the target.} With $42.4\%$ zeros
 and skew $8.8$, squared error on the raw scale is set by a handful of
 county-hours. Fitting on $\sqrt{\mathrm{OSI}}$ and inverting improves the same
 gradient-boosted model from $0.01028$ to $0.00967$; log1p over-corrects
-($0.00996$). But squaring a $\sqrt{}$-scale fit back is biased by Jensen's
+($0.00996$). But squaring a $\sqrt{y}$-scale fit back is biased by Jensen's
 inequality, and RMSE rewards the conditional mean: the tabular member predicts
 $0.841$ of the truth on average. The members that matter therefore use a
 \emph{dual} objective, half the error on each scale, which buys the variance
@@ -194,37 +314,63 @@ rescale that all five folds adopt leaves it shrunk. The blend wants that member
 biased low, which is the shrinkage result of §\ref{sec:diag} arriving from a
 second direction.
 
-\textbf{Zero-inflation, tested three ways and rejected.} The obvious reading of
-$42\%$ zeros is a two-part model. A perfect zero classifier would move the score
-by $0.00003$, because those cells carry $0.7\%$ of the error. Measured: a
-boosted classifier gating the ensemble gains nothing; $P(y{>}0) \times
-E[y\,|\,y{>}0]$ fitted separately on the tabular member's rows is worse on all
-four horizons than the single-stage model, because training the magnitude head
-on positives alone discards what the zeros say about magnitude. Splitting
-\emph{counties} instead --- a random-forest gate on legal features, precision
-$0.86$, isolating the group that carries $83\%$ of the error, then the best
-configuration chosen per group --- is worse by $0.0004$, and worse by $0.00003$
-even when the gate is replaced by the true grouping. The zeros are also not a
-phase: counties show a median of four separate zero runs, and 178 of 239 are
+The same family covers the probabilistic objectives. A conditional normalizing
+flow trained by maximum likelihood, with its sample mean as the point forecast,
+reaches $0.0099$ --- respectable, and not admitted, because RMSE rewards the
+conditional mean and an MSE-trained network estimates it directly rather than
+through sampling. Tweedie and quantile heads behave the same way: better models
+of the distribution, worse answers to the question asked.
+
+\textbf{Two-stage and hurdle models, tested three ways and rejected.} The
+obvious reading of $42\%$ zeros is a two-part model, and it is what the
+operational outage literature, dominated by tree ensembles on storm-level
+exposure features~\cite{wanik,nhess}, reaches for~\cite{thunder}. A perfect zero classifier would move the score
+by $0.00003$, because those cells carry $0.7\%$ of the error. Measured, as a target
+factorisation: $P(y{>}0) \times E[y\,|\,y{>}0]$, fitted separately on the
+tabular member's rows, is worse on all four horizons than the single-stage
+model, because training the magnitude head on positives alone discards what the
+zeros say about magnitude. The corresponding \emph{post-hoc} versions --- a
+boosted classifier gating the finished ensemble, and a random-forest gate
+splitting counties before choosing a configuration per group --- are F6 and fail
+there: the county gate is worse by $0.0004$, and still worse by $0.00003$ when
+its gate is replaced by the true grouping. The zeros are also not a phase: counties show a median of four separate zero runs, and 178 of 239 are
 already non-zero at the origin, so there is no onset to predict.
 
 \section{The forecaster the evidence leaves}
 \label{sec:model}
 
-Two families returned: F4/F5 by manufacturing distinct errors, F7 by exploiting
-them. What survives is an equal-weight blend of two objects,
+Three families shaped the final model: F4 created alternative error bases, F5
+reduced estimator variance where that gain outweighed the diversity it costs,
+and F7 exploited what complementarity remained. What survives is an equal-weight
+blend of two objects,
 \[
 \hat{y} \;=\; \tfrac{1}{2}\,\mathcal{C}\big[f_1,\dots,f_{11}\big]
 \;+\; \tfrac{1}{2}\,A ,
 \]
-followed by the quiet-tail scalar. $\mathcal{C}$ combines members by
-\emph{amplitude and shape separately}: the mean of their per-county totals times
-the mean of their normalised trajectories. It is parameter-free, equals the plain
-mean when members agree on timing, and preserves peak height when they do not
---- averaging in raw space spends amplitude to hedge timing disagreement. $A$ is
-the same bi-GRU trunk estimated 25 seeds $\times$ 4 snapshots; it carries half
-the weight alone because it is as good as the whole bracket and a $1/12$ seat
-cannot express that.
+followed by the quiet-tail scalar. Twelve trained predictors go into the
+forecast, in two unequal halves.
+
+The \textbf{bracket} $\mathcal{C}[f_1,\dots,f_{11}]$ is eleven diverse models
+sharing half the weight, so each carries $1/22$ of the forecast. $\mathcal{C}$
+combines them by \emph{amplitude and shape separately} --- the mean of their
+per-county totals times the mean of their normalised trajectories. It is
+parameter-free, equals the plain mean when the members agree on timing, and
+preserves peak height when they do not, because averaging in raw space spends
+amplitude to hedge timing disagreement.
+
+The \textbf{anchor} $A$ is one model holding the other half by itself. It is the
+same bi-directional GRU as two of the bracket members, but estimated $25$ seeds
+$\times$ 4 cosine-restart snapshots --- $100$ networks averaged --- which makes
+it the most accurate single object in the project at $0.00862$ and by far the
+lowest-variance. It is called the anchor because that is its job: it holds the
+forecast steady while the bracket supplies disagreement. It sits outside the
+bracket rather than inside it for a measured reason. Placed as a twelfth member
+it would receive $1/12$ of the weight, and a paired county bootstrap says that
+under-weights it --- it is as good alone as the whole eleven-member bracket, and
+the $50/50$ split is the only fixed weighting that says so. That split is
+\emph{not} fitted: $1/2$ and $1/11$ are the two round numbers the structure
+implies, and §\ref{sec:model} shows what happened every time we tried to fit
+them instead.
 
 \begin{table}[ht]\small\centering
 \begin{tabular}{@{}llcc@{}}
@@ -246,7 +392,9 @@ $A$ & recurrent; F5 schedule diversity & 0.00862 & --- \\
 \texttt{p1c} & stock-flow; F4 teacher-forced & 0.01148 & 0.70 \\
 \bottomrule
 \end{tabular}
-\caption{Members, each labelled by the family of the contrast that admitted it.
+\caption{The anchor $A$ --- one model holding half the forecast --- and the
+eleven bracket members sharing the other half, each labelled by the family of
+the contrast that admitted it.
 Shipped members inherit earlier accepted interventions; the label is the
 \emph{provenance}, not a claim that they differ in one respect only.}
 \label{tab:mem}
@@ -271,7 +419,7 @@ object, and they are the two least correlated members in the set. Doubling the
 existing physics weight does \emph{not} help, so these are new bases rather than
 more of the same one.
 
-\textbf{Improving a member can cost more than it buys.} Snapshot-ensembling one
+\textbf{Improving a member can cost more than it buys.} Snapshot-ensembling~\cite{huang} one
 member improved it from $0.00955$ to $0.00892$ --- its best score ever --- and
 made the ensemble significantly worse ($P{=}0.011$), because the technique drove
 its errors onto $A$'s, and $A$ is itself a snapshot ensemble. Re-running all ten
@@ -315,10 +463,13 @@ comparable across teams, which is how the ranking works.}
 
 The ensemble improves on the strongest naive baseline by $25\%$ and removes
 $73\%$ of the target's squared magnitude, against $54\%$ for persistence. It is
-better than the eight-member predecessor at all four horizons. When the choice
-among the ten configurations searched is itself folded into the nesting, the
-honest figure is $0.00838$; we quote that rather than the $0.00835$ above
-wherever a single number has to carry the claim.
+better than the eight-member predecessor at all four horizons. Two figures
+should be distinguished: $0.00835$ is the out-of-fold score of the fixed final
+configuration, and $\mathbf{0.00838}$ is the estimate when the choice among the
+ten configurations searched is itself nested inside the folds. The second is the
+honest one and is what we quote wherever a single number carries the claim; the
+$0.00003$ between them is what the selection is worth, and reporting only the
+first is the mistake the right-hand panel of Fig.~\ref{fig:conc} is about.
 Figure~\ref{fig:traj} shows forecasts for four held-out counties.
 
 \textbf{Where the blend earns its keep.} Hours $72$--$95$ carry $51\%$ of all
@@ -335,18 +486,24 @@ the counties we get \emph{wrong} overlap the most severe ones only 6 of 13, and
 a multiplier keyed on the best available severity ranking is worse on all four
 horizons out of fold.
 
-\textbf{Uncertainty.} Split-conformal intervals, calibrated on four folds and
-checked on the fifth, cover $0.900$ of held-out cells at every horizon; scaling
-the residual by the prediction narrows them by $22$--$48\%$ at the same
-coverage. The point forecast is unchanged, which is the point: interval
-calibration and point accuracy are separable here.
+\textbf{Conformal intervals.} A point forecast with no statement of its own
+uncertainty is a weak deliverable for an operational task, so we calibrated
+split-conformal intervals on four folds and checked them on the fifth. Coverage
+is $0.900$ at every horizon against a nominal $90\%$, and scaling the conformity
+score by the prediction gives locally adaptive intervals $22$--$48\%$ narrower
+at the same coverage --- which matters, because interval width varies by two
+orders of magnitude across counties. Two caveats we state rather than hide:
+cells within a county are not exchangeable, so this is a county-split check and
+not a formal guarantee; and the point forecast is unchanged by construction, so
+none of it moves the RMSE we are scored on. Interval calibration and point
+accuracy are separable here, and conformal prediction is why we can say so.
 
 \textbf{We do not claim separation from comparable submissions.} Resampling 63
-counties gives a score standard deviation of $0.0016$ --- roughly $45\times$ the
-margin between our final model and our own earlier ones, and larger than the
-entire spread of the 2025 finalist field. A random 63-county draw moves our own
-score between $0.0055$ and $0.0114$. Any ranking at the fifth decimal is
-substantially a statement about which counties were held out.
+counties gives a score standard deviation of $0.0016$: roughly $45\times$ the
+margin between our final model and our own earlier ones, larger than the entire
+spread of the 2025 finalist field, and enough to move our own score between
+$0.0055$ and $0.0114$. Any ranking at the fifth decimal is substantially a
+statement about which counties were held out.
 
 \begin{figure*}[t]
 \centering
@@ -356,60 +513,42 @@ severity range. Shaded: the 72 observed hours. Everything after is predicted.}
 \label{fig:traj}
 \end{figure*}
 
-\section{Audit, limits, and prior work}
-
-\textbf{Defects we found in our own measurements.} A ledger of $246$ contrasts
-is only as good as the harness that scored it, so we audited ours.
-
-\begin{center}\footnotesize
-\begin{tabular}{@{}p{3.5cm}p{4.2cm}@{}}
-\toprule
-defect & consequence \\
-\midrule
-bootstrap resampled \emph{pooled} rather than per-horizon RMSE & every load-bearing comparison re-run; no verdict flipped \\
-a production headline quoted the $t{+}1$\,h column as the mean & had reversed one contingency decision; corrected, the shipped blend wins on both metrics \\
-four builder-script names in the reproduction notes did not exist & corrected against \texttt{git ls-files}; one file has no committed builder, now stated \\
-a coverage table summed to $120$ while claiming $129$ & missing row restored \\
-\bottomrule
-\end{tabular}
-\end{center}
-
-\textbf{Limits.} The residual result is empirical, not information-theoretic: we
-show the per-county multiplier is unrecoverable by the features and learners we
-tested, not that it is unpredictable in principle. One member consumes external
-static data; substituting a package-only variant costs $0.00004$, measured, and
-ships as a one-line fallback. All numbers are county-holdout estimates on 239
-training counties, not leaderboard scores.
-
-\textbf{Prior work.} Operational outage modelling predicts storm totals or damage
-counts from forecast weather and does not produce hourly trajectories;
-EAGLE-I-era nowcasting produces hourly forecasts at 1--6\,h horizons with the
-target's own recent history available. Ours is neither: a 143-hour horizon, for
-counties whose history is withheld, with future weather known. The nearest
-general tools are the recent exogenous-covariate architectures ---
-TimeXer~\cite{timexer}, XLinear~\cite{xlinear}, TSMixer~\cite{tsmixer} --- and
-covariate-aware pretrained forecasters such as Chronos-2~\cite{chronos2}. We ran
-all of them on this protocol; they appear in F1 and F2 above. What we did not
-find in prior work is the use of a residual budget as a filter applied
-\emph{before} the experiments, with the full ledger --- negative results
-included --- reported as a test of it.
-
 \section{Conclusion and reproducibility}
+\label{sec:repro}
 
 A pre-experiment residual diagnosis allocated attention across a closed set of
-intervention families; $218$ controlled runs and $28$ paired contrasts then
+intervention families; $210$ controlled models and $28$ paired contrasts then
 tested those family-level predictions under county-held-out, nested validation.
 The model emerged from the interventions that survived, not from ranking
 configurations. The finding we would carry to another problem is that in a
-small-sample transfer regime, a component's value is the \emph{shape} of its
-errors and not their size --- which is why the three weakest models in our set
-are the three we could not remove.
+small-sample transfer regime a component's marginal value is governed by the
+complementarity of its errors at least as much as by their size --- which is why
+the three weakest models in our set are the three we could not remove.
+
+\textbf{Limits.} The residual result is empirical, not information-theoretic:
+the per-county multiplier is unrecoverable by the features and learners we
+tested, not unpredictable in principle. One member consumes external static
+data; a package-only substitute costs $0.00004$, measured, and ships as a
+one-line fallback. All numbers are county-holdout estimates on the 239 training
+counties, not leaderboard scores.
 
 \texttt{make\_submission.py} rebuilds the prediction file end-to-end from the
 three provided CSVs with fixed seeds and no manual steps; a clean clone
 reproduces a byte-identical SHA-256. \texttt{canonical.py} regenerates every
 number quoted here from cached out-of-fold predictions, so any citation can be
-checked by re-running rather than by trusting.
+checked by re-running rather than by trusting. All of it is submitted as
+\texttt{code.zip}, self-contained and needing no network access.
+
+{\footnotesize The interactive dashboard over all 210 models --- every one
+sortable, the members plotted by accuracy against error correlation, and a
+builder that returns the exact held-out score of any subset of 60 you combine
+--- is live now at
+\url{https://hamedkhosravi99.github.io/informs2026-dashboard/}. The same code
+and the full catalogue in four formats are at
+\url{https://github.com/HamedKhosravi99/informs2026-model-catalogue}, which is
+private while the competition is open and becomes public on 25 September 2026,
+once the deadline has passed, so the committee can inspect it directly. Nothing
+in either is needed to reproduce the submission.}
 
 {\footnotesize
 \begin{thebibliography}{9}\small
@@ -428,12 +567,18 @@ forecasting? \emph{NeurIPS}, 2024.
 \bibitem{cawley} G.~Cawley and N.~Talbot. On over-fitting in model selection and
 subsequent selection bias in performance evaluation. \emph{JMLR}, 11:2079--2107,
 2010.
-\bibitem{kim} T.~Kim et al. Reversible instance normalization for accurate
-time-series forecasting against distribution shift. \emph{ICLR}, 2022.
 \bibitem{timexer} Y.~Wang et al. TimeXer. \emph{NeurIPS}, 2024.
 \bibitem{xlinear} Z.~Ma et al. XLinear. arXiv:2601.09237, 2026.
 \bibitem{tsmixer} S.-A. Chen et al. TSMixer. \emph{TMLR}, 2023.
 \bibitem{chronos2} A.~F. Ansari et al. Chronos-2. arXiv:2510.15821, 2025.
+\bibitem{wanik} D.~W. Wanik, E.~N. Anagnostou, B.~M. Hartman, M.~E.~B.
+Frediani, M.~Astitha. Storm outage modeling for an electric distribution network
+in Northeastern USA. \emph{Natural Hazards}, 2015.
+\bibitem{nhess} Probabilistic and machine learning methods for uncertainty
+quantification in power outage prediction due to extreme events.
+\emph{Nat. Hazards Earth Syst. Sci.} 23:1665, 2023.
+\bibitem{thunder} Operational early warning of thunderstorm-driven power outages
+from open data: a two-stage machine learning approach. arXiv:2510.03959, 2025.
 \end{thebibliography}}
 
 \end{document}
