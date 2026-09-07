@@ -6,7 +6,7 @@ and the code that produced all of it.
 
 ### → [**Open the interactive dashboard**](https://claude.ai/code/artifact/80c787af-5691-4296-88d4-18d97b978e09)
 
-All 219 runs, the quality-versus-diversity finding, the redundancy arcs, the
+All 210 runs, the quality-versus-diversity finding, the redundancy arcs, the
 selection-reversal slopegraph, and an ensemble builder you can drive yourself.
 
 The same page is committed at
@@ -110,16 +110,16 @@ It carries six views:
   average to 0.00856, worse than the shipped twelve at 0.00847.
 - **Where the effort went.** Runs per intervention family, with the best score
   reached inside each.
-- **What 219 runs actually look like.** The score distribution against the naive
+- **What every scored run looks like.** The score distribution against the naive
   baselines — the search space is narrow, which is why selection discipline
   mattered more than exploration.
-- **Every run.** All 219. Click any column heading to sort, click again to reverse;
+- **Every run.** All 210. Click any column heading to sort, click again to reverse;
   filter by text or by family; the twelve shipped members are highlighted.
 
 It renders in light and dark, and the palette is validated for colour-vision
 deficiency rather than chosen by eye.
 
-**219 runs are recorded; 209 carry a score.** The remaining 10 either errored, predate the standardised scorer, or diverged (SARIMAX logged a meaningless magnitude on some counties); they are shown with `--` rather than dropped. Thirteen codes appear twice — the same idea re-run after a fix or against a changed control — and are numbered `#1`, `#2` rather than silently collapsed.
+**210 runs are recorded; 209 carry a score.** Nine further attempts crashed on a code fault without producing output — a crash is not an experiment, so they are not listed. The one row without a score is SARIMAX, which ran and then diverged: that is a result about the method, so it stays with its score blanked. Thirteen codes appear twice — the same idea re-run after a fix or against a changed control — and are numbered `#1`, `#2` rather than silently collapsed.
 
 ### How experiments are classified
 

@@ -3,7 +3,7 @@ F2,s45 pipeline + interactions (member upgrade),F1 signal,boosted / bagged trees
 FS2e,full FE + shadow (Boruta-lite),F1 signal,boosted / bagged trees,plain squared error,0.0093392518697608,0.0114352124291163,0.0101665129607627,0.0082258063376515,0.0075294757515128,0.0025030894994934,13.0,False,48
 FS2c,full FE + permutation importance,F1 signal,boosted / bagged trees,plain squared error,0.0093485432679406,0.0114071589143712,0.0101113786904576,0.0082429356295957,0.0076326998373378,0.0025314805828272,14.0,False,49
 F1d,interactions only,F1 signal,boosted / bagged trees,sqrt target,0.0093548789552109,0.0115135229267349,0.0102011102280883,0.0082405007531067,0.0074643819129137,0.0025154244212019,43.0,False,50
-F1 #1,"independent-agent features (pre-event frag, clocks, interactions, veer)",F1 signal,boosted / bagged trees,sqrt target,0.0093820133371644,0.0115549529673377,0.0101949979689588,0.0082181784978665,0.0075599239144945,0.0025305868921778,46.0,False,52
+F1,"independent-agent features (pre-event frag, clocks, interactions, veer)",F1 signal,boosted / bagged trees,sqrt target,0.0093820133371644,0.0115549529673377,0.0101949979689588,0.0082181784978665,0.0075599239144945,0.0025305868921778,46.0,False,52
 F4,f2 + decay-modifier interactions,F1 signal,boosted / bagged trees,sqrt target,0.0094098026976566,0.0117318809281003,0.0102380805717371,0.0081672613619564,0.0075019879288324,0.0025248739212399,9.0,False,57
 S45 #1,sub-county gust heterogeneity,F1 signal,Seq2Seq (GRU),plain squared error,0.0094219161358175,0.0114834630823822,0.0102273243543437,0.0083192191059177,0.0076576580006263,0.0025229620563707,8.0,False,59
 FS2b,full FE + gain top-40,F1 signal,boosted / bagged trees,plain squared error,0.0094448611844228,0.0116555603501276,0.0103095080590093,0.0082160762896549,0.0075983000388996,0.0025481139099,9.0,False,63
@@ -44,8 +44,6 @@ S41 #2,RAFT retrieved analogs,F1 signal,other / statistical,plain squared error,
 I17b,static + physics,F1 signal,Seq2Seq (GRU),plain squared error,0.0104555432661855,0.0129397680263436,0.0115908905664329,0.0090255460549917,0.0082659684169739,0.0033261995310928,17.0,False,161
 I16,static enrichment,F1 signal,Seq2Seq (GRU),plain squared error,0.0104657890852973,0.012739342869951,0.0115069112721556,0.0092017567713103,0.0084151454277723,0.0033422793992606,19.0,False,162
 I17,physics indices,F1 signal,Seq2Seq (GRU),plain squared error,0.0108108353314092,0.0129573316154015,0.0117225975333146,0.0096038007481922,0.0089596114287286,0.0033610813056511,18.0,False,174
-F1 #2,"independent-agent features (pre-event frag, clocks, interactions, veer)",F1 signal,boosted / bagged trees,sqrt target,,,,,,,,False,0
-F1 #3,"independent-agent features (pre-event frag, clocks, interactions, veer)",F1 signal,boosted / bagged trees,sqrt target,,,,,,,,False,0
 E5,2-layer bi-encoder + S62 loss,F2 mechanism,BiEncSeq2Seq,dual raw+sqrt,0.0089342366406411,0.0106161599921025,0.0096576542290193,0.0081091595216215,0.0073539728198211,0.0025708994338678,218.0,False,13
 S31,bidirectional encoder,F2 mechanism,LSTM / Transformer,plain squared error,0.0090976651133266,0.0107524332630372,0.0096607670518954,0.0083714633178778,0.0076059968204959,0.0029727902260069,167.0,False,27
 E3,N_t transition auxiliary head,F2 mechanism,LSTM / Transformer,plain squared error,0.0091240480892943,0.0105910616326933,0.0098371018089178,0.0084004443099045,0.0076675846056615,0.0025685165369779,161.0,False,30
@@ -84,7 +82,7 @@ S22b,LightGBM Tweedie,F2 mechanism,boosted / bagged trees,plain squared error,0.
 S27,feature selection top-40,F2 mechanism,boosted / bagged trees,plain squared error,0.0104685176040353,0.0127804901676177,0.0115078107492595,0.0091773535296644,0.0084084159695995,0.0034038347838987,11.0,False,163
 S28,quantile-transformed features,F2 mechanism,boosted / bagged trees,plain squared error,0.0105234527930902,0.0129719034964004,0.0116702479314117,0.0091149312203551,0.0083367285241935,0.0033573467649888,27.0,False,165
 S32,temporal CNN (TCN),F2 mechanism,TCN / basis / linear,plain squared error,0.0105420748655396,0.0122789021591064,0.0114122651054039,0.0095818570989551,0.008895275098693,0.0036524786032059,395.0,False,166
-D5 #1,"proper B-spline KAN (quantile inputs, base residual)",F2 mechanism,MLP / KAN / TabNet / FT-T,plain squared error,0.0105908269399344,0.0132886710501465,0.0116273263198762,0.00907710867718,0.0083702017125346,0.0030103694446913,772.0,False,167
+D5,"proper B-spline KAN (quantile inputs, base residual)",F2 mechanism,MLP / KAN / TabNet / FT-T,plain squared error,0.0105908269399344,0.0132886710501465,0.0116273263198762,0.00907710867718,0.0083702017125346,0.0030103694446913,772.0,False,167
 S33,basis expansion (N-BEATS style),F2 mechanism,TCN / basis / linear,plain squared error,0.0105957304192593,0.0122498601705438,0.011438810375238,0.0097013443515114,0.0089929067797439,0.0037500913505106,33.0,False,168
 S21b,XGBoost Tweedie,F2 mechanism,boosted / bagged trees,plain squared error,0.0106611400198207,0.0132327341692393,0.0116327028562392,0.0091871156306793,0.0085920074231252,0.0025448245367463,9.0,False,170
 S34,physics-informed net,F2 mechanism,other / statistical,plain squared error,0.010711321722054,0.0122784890133308,0.0114608153717855,0.0099756273605682,0.0091303551425315,0.0037797071810676,126.0,False,172
@@ -112,9 +110,7 @@ B1 #1,"SARIMAX(2,0,2) per-county baseline",F2 mechanism,other / statistical,plai
 S25,binned classification,F2 mechanism,boosted / bagged trees,plain squared error,0.0335253724114699,0.0369505992410249,0.0343101310063142,0.0304177404361494,0.0324230189623913,0.0061001878156784,87.0,False,207
 TS3,iTransformer-KF (Liu ICLR 2024 + known-future variates),F2 mechanism,patch / variate attention,plain squared error,0.0579692469305067,0.0698068363756554,0.0645748350351222,0.0475338210507073,0.049961495260542,0.0051783903061411,85.0,False,208
 TS1,DLinear-KF (Zeng AAAI 2023 + known-future),F2 mechanism,TCN / basis / linear,plain squared error,0.0879907179239321,0.1317025200219242,0.1266280646526487,0.0655575141374514,0.0280747728837041,0.0063839033897305,5.0,False,209
-B1 #2,"SARIMAX(2,0,2) per-county baseline",F2 mechanism,other / statistical,plain squared error,,,,,,,,False,0
-B1 #3,"SARIMAX(2,0,2) per-county baseline",F2 mechanism,other / statistical,plain squared error,,,,,,,9.0,False,0
-D5 #2,"proper B-spline KAN (quantile inputs, base residual)",F2 mechanism,MLP / KAN / TabNet / FT-T,plain squared error,,,,,,,,False,0
+B1 #2,"SARIMAX(2,0,2) per-county baseline",F2 mechanism,other / statistical,plain squared error,,,,,,,9.0,False,0
 A11x25,"snapshot + exact-metric, 25 seeds",F3 target,BiEncSeq2Seq,dual raw+sqrt,0.0086337830658842,0.0101929408552934,0.0092450832403294,0.0079008043465205,0.0071963038213937,0.0024660667227104,8013.0,False,2
 A11,snapshot + exact-metric weights,F3 target,BiEncSeq2Seq,dual raw+sqrt,0.0086949692595474,0.0101311381268948,0.0092875694554699,0.0080499802622923,0.0073111891935327,0.0024899085245291,880.0,False,4
 A5,S62 + exact-metric hour weights,F3 target,BiEncSeq2Seq,dual raw+sqrt,0.0088808821483037,0.0103111084844676,0.009606550296404,0.0082355997320795,0.0073702700802636,0.0025257397750099,169.0,False,8
@@ -152,7 +148,7 @@ P3 #2,test-time latent adaptation (1D),F4 exposure,Seq2Seq (GRU),plain squared e
 P3b #2,"same model, no adaptation (z=0)",F4 exposure,Seq2Seq (GRU),plain squared error,0.0093209563910693,0.0111522222695483,0.0099602643767328,0.0084430474892263,0.0077282914287699,0.0027316468192416,123.0,False,44
 A8,S62 + prefix-truncation augmentation,F4 exposure,BiEncSeq2Seq,dual raw+sqrt,0.0093391314768468,0.0107840150483761,0.0101176741019253,0.0086545688795016,0.0078002678775844,0.0026507650171759,214.0,False,47
 S40,multi-origin augmentation,F4 exposure,Seq2Seq (GRU),plain squared error,0.0093624058756587,0.0111462810209781,0.0100331315763471,0.0084655872826473,0.0078046236226622,0.0032277781669847,225.0,False,51
-P4 #1,storm-phase canonicalization,F4 exposure,Seq2Seq (GRU),plain squared error,0.0094180455335741,0.0110222959659474,0.0100191131282147,0.0086774973602712,0.0079532756798631,0.0030667573303367,149.0,False,58
+P4,storm-phase canonicalization,F4 exposure,Seq2Seq (GRU),plain squared error,0.0094180455335741,0.0110222959659474,0.0100191131282147,0.0086774973602712,0.0079532756798631,0.0030667573303367,149.0,False,58
 S35 #1,mixup augmentation,F4 exposure,Seq2Seq (GRU),plain squared error,0.0094361917736961,0.0109702182192332,0.0102472107097245,0.0087207853188122,0.0078065528470145,0.0030401029590984,1088.0,False,60
 S35 #2,mixup augmentation,F4 exposure,Seq2Seq (GRU),plain squared error,0.0094361917736961,0.0109702182192332,0.0102472107097245,0.0087207853188122,0.0078065528470145,0.0030401029590984,1095.0,False,60
 I11,storm augmentation,F4 exposure,Seq2Seq (GRU),plain squared error,0.009549960460087,0.0110082198246663,0.0103416046086013,0.0087729079182555,0.0080771094888249,0.0029455765352052,1267.0,False,75
@@ -169,11 +165,6 @@ M1c,"MC damage only, deterministic restore",F4 exposure,stock-flow state space,h
 M1b,"stock-flow MC rollout, DAgger-1",F4 exposure,stock-flow state space,hurdle / two-part,0.0105188610557163,0.0123729832756073,0.0115067212038399,0.0096252349305786,0.0085705048128395,0.0029101929645338,272.0,False,164
 M1,"stock-flow MC rollout, teacher-forced",F4 exposure,stock-flow state space,hurdle / two-part,0.0106727279596016,0.0128872068746442,0.0119364310360242,0.0095545470598544,0.0083127268678836,0.0029649582944829,157.0,False,171
 M1d,"MC teacher-forced, 64 paths",F4 exposure,stock-flow state space,hurdle / two-part,0.0108359061809436,0.0130694524078112,0.0121081350980225,0.0096706238165026,0.0084954134014382,0.0029978285770117,162.0,False,177
-P4 #2,storm-phase canonicalization,F4 exposure,Seq2Seq (GRU),plain squared error,,,,,,,,False,0
-A10,trailing-window multi-origin 47/59/71 (control),F4 exposure,BiEncSeq2Seq,dual raw+sqrt,,,,,,,,False,0
-A10b,trailing-window 47/71/103 (lull origin),F4 exposure,BiEncSeq2Seq,dual raw+sqrt,,,,,,,,False,0
-A10c,trailing-window 47/59/71/103,F4 exposure,BiEncSeq2Seq,dual raw+sqrt,,,,,,,,False,0
-A10d,trailing-window 71/103,F4 exposure,BiEncSeq2Seq,dual raw+sqrt,,,,,,,,False,0
 A3x25,"snapshot ensemble, 25 seeds",F5 estimation,BiEncSeq2Seq,dual raw+sqrt,0.0086206223188809,0.0101577396096888,0.0092287812601415,0.0078986049565444,0.0071973634491488,0.0024708530647594,9244.0,True,1
 A3,S62 + snapshot ensemble (cosine restarts),F5 estimation,BiEncSeq2Seq,dual raw+sqrt,0.0086882026665756,0.0100937774538569,0.009271456272369,0.008058444821035,0.0073291321190415,0.0024978683709821,303.0,False,3
 A1,S62 8 seeds,F5 estimation,BiEncSeq2Seq,dual raw+sqrt,0.0088266374820194,0.0102783641089584,0.0094640203357449,0.0081570503180189,0.0074071151653556,0.0025468090066432,346.0,False,5
