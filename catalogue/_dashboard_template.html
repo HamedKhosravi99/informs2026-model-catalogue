@@ -406,7 +406,8 @@ fetch('dashboard_data.json').then(r=>r.json()).then(D=>{
        <div><div class="v">${f5(h[2])}</div><div class="k">t+24</div></div>
        <div><div class="v">${f5(h[3])}</div><div class="k">t+48</div></div>
        <div><div class="v">${sel.length}</div><div class="k">models averaged</div></div>
-       <div><div class="v">${f5(D.baselines.final)}</div><div class="k">the <b>shipped</b> ensemble</div></div></div>
+       <div><div class="v">${f5(D.baselines.final)}</div><div class="k">the <b>shipped</b> ensemble</div></div>
+       <div><div class="v">${f5(D.extra.bestsub.rmse)}</div><div class="k">best subset reachable here</div></div></div>
        <div class="verdict">Best single model in your set: <b>${bestLab}</b> at ${f5(best)} &mdash;
        averaging ${mean<best?`beats it by ${((best-mean)*1e5).toFixed(1)}e-5`:`is <b>worse</b> by ${((mean-best)*1e5).toFixed(1)}e-5`}.
        ${isShipped(sel)
@@ -418,7 +419,16 @@ fetch('dashboard_data.json').then(r=>r.json()).then(D=>{
          : `<br>This builder always takes a <b>plain equal-weight mean</b>, so each model you tick carries
             1/${sel.length} of the forecast. The submission does not: the anchor holds <b>half</b> on its
             own and the other eleven share the rest at 1&frasl;22 each, combined by amplitude and shape.
-            That is why subsets that look good here need not beat ${f5(D.baselines.final)}.`}</div>`;};
+            That is why subsets that look good here need not beat ${f5(D.baselines.final)}.`}
+       <br><b>And none of them does.</b> We searched every subset of the shipped twelve exhaustively
+       and ran add/drop/swap local search over all ${D.extra.objs.length} selectable objects from 40
+       restarts: the best equal-weight combination anyone can build on this page scores
+       <b>${f5(D.extra.bestsub.rmse)}</b> with ${D.extra.bestsub.k} models, still
+       ${((D.extra.bestsub.rmse-D.baselines.final)*1e5).toFixed(2)}e-5 behind the submission.
+       The report quotes two figures for it: <b>${f5(D.baselines.final)}</b> out of fold for the
+       fixed configuration, and <b>${f5(D.baselines.nested)}</b> once the choice among the searched
+       configurations is itself nested inside the folds &mdash; the honest one, and the number the
+       abstract leads with.</div>`;};
    pk.addEventListener('change',render);
    const set=ids=>{pk.querySelectorAll('input').forEach(c=>c.checked=ids.includes(c.dataset.id));render();};
    document.getElementById('pick-ship').onclick=()=>set(D.extra.ens.members.concat(['a3x25']));

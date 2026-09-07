@@ -63,6 +63,55 @@ def diversity_points():
 
 
 ANCHOR_CODE = "A3x25"
+# The report quotes two figures and both belong on the page: 0.008354 is the
+# out-of-fold score of the fixed final configuration, 0.008378 the estimate with
+# the choice among the searched configurations itself nested inside the folds.
+FINAL_CV, FINAL_NESTED = 0.008354, 0.008378
+
+
+def best_plain_mean_subset(extra):
+    """The lowest score reachable in the builder, which only does equal weights.
+
+    A reader can tick any subset of the selectable objects, so the honest thing
+    is to state up front what the best of those is worth. Recomputed at build
+    time from the same Gram tensor the page uses, so it cannot go stale.
+    Add/drop/swap local search from fixed-seed restarts; exact per subset.
+    """
+    import math, random
+    G, N = extra["gram"], extra["n"]
+    HK = ["t01", "t06", "t24", "t48"]
+    m = len(extra["objs"])
+
+    def score(S):
+        S = list(S); k = len(S)
+        return sum(math.sqrt(sum(G[h][a][b] for a in S for b in S) / (k * k) / N[h])
+                   for h in HK) / 4
+
+    rng = random.Random(0)
+    best = (1.0, None)
+    for _ in range(40):
+        cur = set(rng.sample(range(m), rng.randint(2, 10))); cs = score(cur)
+        moved = True
+        while moved:
+            moved = False
+            for j in range(m):
+                T = cur - {j} if j in cur else cur | {j}
+                if not T:
+                    continue
+                sc = score(T)
+                if sc < cs - 1e-12:
+                    cur, cs, moved = T, sc, True
+            for a in list(cur):
+                for b in range(m):
+                    if b in cur:
+                        continue
+                    T = (cur - {a}) | {b}; sc = score(T)
+                    if sc < cs - 1e-12:
+                        cur, cs, moved = T, sc, True
+                        break
+        if cs < best[0]:
+            best = (cs, sorted(cur))
+    return {"rmse": round(best[0], 6), "k": len(best[1])}
 
 
 def main():
@@ -93,13 +142,18 @@ def main():
                       "median": None if pd.isna(r["median"]) else round(float(r["median"]), 6),
                       "shipped": int(r["shipped"])} for _, r in fam.iterrows()],
         "diversity": diversity_points(),
-        "baselines": {"zeros": 0.016317, "persistence": 0.011097, "anchor": 0.008621, "final": 0.008354},
+        "baselines": {"zeros": 0.016317, "persistence": 0.011097, "anchor": 0.008621,
+                      "final": FINAL_CV, "nested": FINAL_NESTED},
         "meta": {"n": len(cat), "scored": int(cat.rmse_num.notna().sum())},
     }
     (OUT / "catalogue").mkdir(parents=True, exist_ok=True)
     extra = ROOT / "catalogue" / "_extra.json"
     if extra.exists():
         data["extra"] = json.loads(extra.read_text())
+        data["extra"]["bestsub"] = best_plain_mean_subset(data["extra"])
+        print(f"  best plain-mean subset reachable in the builder: "
+              f"{data['extra']['bestsub']['rmse']:.6f} "
+              f"({data['extra']['bestsub']['k']} models) vs {FINAL_CV:.6f} shipped")
     blob = json.dumps(data, separators=(",", ":"))
     (OUT / "catalogue" / "dashboard_data.json").write_text(blob)
     # Inline the data so the page works when opened from disk: a fetch() of a sibling
