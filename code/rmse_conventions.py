@@ -3,7 +3,7 @@
 Scores the shipped ensemble's cached OOF predictions (oof/ens8p1b.csv, which
 already carries the nested tail correction) under seven defensible conventions
 for turning per-cell errors into one number. Regenerates the table in
-REPORT.md 5v-b. Read-only.
+the experiment catalogue. Read-only.
 """
 import numpy as np
 import pandas as pd

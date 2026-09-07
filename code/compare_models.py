@@ -7,7 +7,7 @@ bootstraps over counties, which removes that variance component.
 
 Metric: the bootstrap statistic is the **official** one -- the mean of the four
 per-horizon RMSEs, matching `src/validate.py` and every headline number in
-REPORT.md. Until 2026-08-15 this script pooled the squared error across all four
+the experiment catalogue. Until 2026-08-15 this script pooled the squared error across all four
 horizons into a single RMSE, which is a different (t48h-dominated) statistic;
 `--pooled` reproduces that old behaviour for back-comparison.
 

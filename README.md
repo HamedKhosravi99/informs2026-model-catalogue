@@ -4,15 +4,17 @@ Complete record of the modelling work for the INFORMS 2026 Data Mining Society
 Data Challenge: every experiment we ran, how each was classified, what it scored,
 and the code that produced all of it.
 
-### → [**Open the interactive dashboard**](https://claude.ai/code/artifact/80c787af-5691-4296-88d4-18d97b978e09)
+### → [**Open the interactive dashboard**](https://hamedkhosravi99.github.io/informs2026-model-catalogue/)
 
 All 210 runs, the quality-versus-diversity finding, the redundancy arcs, the
 selection-reversal slopegraph, and an ensemble builder you can drive yourself.
 
-The same page is committed at
+That link is GitHub Pages, served from [`docs/`](docs/). **It goes live when this
+repository becomes public on 25 September 2026**, once the competition deadline
+has passed. Until then, the same page is committed at
 [`catalogue/dashboard.html`](catalogue/dashboard.html) — a single self-contained
-file with the data inlined, so it also opens straight from disk with no server
-and no dependencies:
+file with the data inlined, so it opens straight from disk with no server and no
+dependencies:
 
 ```bash
 git clone git@github.com:HamedKhosravi99/informs2026-model-catalogue.git
@@ -58,11 +60,26 @@ summary.
 magnitude against 54% for persistence. All figures are five-fold county-holdout
 cross-validation on the 239 training counties.
 
+## Going public on 25 September 2026
+
+The report submitted to the competition cites this repository and the Pages URL
+above, both of which become reachable once the deadline passes. Two commands:
+
+```bash
+gh repo edit HamedKhosravi99/informs2026-model-catalogue --visibility public
+gh api -X POST repos/HamedKhosravi99/informs2026-model-catalogue/pages \
+  -f 'source[branch]=main' -f 'source[path]=/docs'
+```
+
+GitHub Pages cannot serve a private repository on a free plan, which is why the
+second command has to wait for the first.
+
 ## Repository layout
 
 ```
 catalogue.pdf      every run, printable          <- the results document
 catalogue/         the same record: dashboard, markdown, LaTeX, CSV
+docs/              the dashboard, served by GitHub Pages
 code/              all source, scripts, external covariates, run logs, report
 ```
 
@@ -77,7 +94,7 @@ nothing is hand-typed.
 
 | file | what it is |
 |---|---|
-| [**dashboard**](https://claude.ai/code/artifact/80c787af-5691-4296-88d4-18d97b978e09) · [`dashboard.html`](catalogue/dashboard.html) | interactive; the hosted copy opens in a browser, the local one needs no server |
+| [**dashboard**](https://hamedkhosravi99.github.io/informs2026-model-catalogue/) · [`dashboard.html`](catalogue/dashboard.html) | interactive; the hosted copy opens in a browser, the local one needs no server |
 | [`CATALOGUE.md`](catalogue/CATALOGUE.md) | browsable tables, grouped by intervention family |
 | [`catalogue.pdf`](catalogue.pdf) | the same content, landscape, in the repository root |
 | `catalogue.tex` | LaTeX source |

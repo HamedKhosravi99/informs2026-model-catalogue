@@ -1,7 +1,7 @@
 """R8b ensemble-level test: does swapping p1b -> r8b (or adding r8b) improve the
 shipped 8-member ensemble? Identical nested tail-scale procedure as fit_tail_scale.py.
 
-Result (REPORT.md §R8): no — the swap is worse at all four horizons (0.00873 vs
+Result (the experiment catalogue): no — the swap is worse at all four horizons (0.00873 vs
 0.00864, P(swap better) 0.153) and the 9-member add is also worse (0.00870, P 0.184).
 The swap does hold the best ensemble MAE measured (0.00260), kept as an MAE
 contingency. Writes nested-corrected ensemble OOFs to oof/ for compare_models.py.
