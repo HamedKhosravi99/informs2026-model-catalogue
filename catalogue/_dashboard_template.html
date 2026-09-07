@@ -79,6 +79,8 @@ th.up::after{content:'\2191';opacity:1;color:var(--series-1)}
 th.dn::after{content:'\2193';opacity:1;color:var(--series-1)}
 .wrap{max-height:480px;overflow:auto;border:1px solid var(--line);border-radius:8px}
 tr.ship td{background:color-mix(in srgb,var(--series-1) 9%,transparent)}
+tr.anchor td{background:color-mix(in srgb,var(--series-2) 16%,transparent)}
+.chip.anchor{background:var(--series-2);border-color:var(--series-2);color:#fff;font-weight:600}
 .chip{display:inline-block;background:var(--surface-1);border:1px solid var(--line);border-radius:4px;
   padding:0 5px;font-size:10.5px;color:var(--text-secondary)}
 .dim{color:var(--text-muted)}
@@ -173,8 +175,12 @@ in the catalogue but cannot be a member at all: it changes the interval, not the
 
 <h2>Every model</h2>
 <p class="note"><b>Click any column heading to sort</b> — click again to reverse. Filter by text or
-family below. Shipped members are highlighted. <span class="dim">&mdash; means the model errored,
-diverged, or predates the standardised scorer.</span></p>
+family below. The twelve shipped models are highlighted, and they are not equal:
+<span class="chip anchor">anchor</span> is the single model that holds <b>half</b> the forecast on
+its own, and the eleven <span class="chip">bracket</span> models share the other half, 1&frasl;22
+each. Sort by <b>role</b> to bring all twelve to the top.
+<span class="dim">&mdash; means the model errored, diverged, or predates the standardised
+scorer.</span></p>
 <div class="ctl">
   <input id="q" placeholder="filter by code, name, mechanism, objective…" aria-label="Filter models">
   <select id="fam-f" aria-label="Filter by family"><option value="">all families</option></select>
@@ -182,7 +188,8 @@ diverged, or predates the standardised scorer.</span></p>
   <span id="count" class="dim" style="font-size:12.5px"></span>
 </div>
 <div class="wrap"><table id="tbl"><thead><tr>
-  <th data-k="code">code</th><th data-k="name">experiment</th><th data-k="family">family</th>
+  <th data-k="code">code</th><th data-k="role">role</th><th data-k="name">experiment</th>
+  <th data-k="family">family</th>
   <th data-k="mech">mechanism</th><th data-k="rmse">RMSE</th><th data-k="h0">t+1</th>
   <th data-k="h1">t+6</th><th data-k="h2">t+24</th><th data-k="h3">t+48</th>
   <th data-k="obj">objective</th><th data-k="mae">MAE</th><th data-k="secs">sec</th>
@@ -422,11 +429,15 @@ fetch('dashboard_data.json').then(r=>r.json()).then(D=>{
       os=document.getElementById('onlyship').checked;
     let r=rows.filter(x=>(!ff||x.family===ff)&&(!os||x.shipped)&&
       (!q||`${x.code} ${x.name} ${x.mech} ${x.obj}`.toLowerCase().includes(q)));
-    r.sort((a,b)=>{const u=a[sk],v=b[sk];
+    if(sk==='role'){r.sort((a,b)=>{const o=x=>x.role==='anchor'?0:x.role==='bracket'?1:2;
+      return (o(a)-o(b)||(a.rmse??9)-(b.rmse??9))*sd;});}
+    else r.sort((a,b)=>{const u=a[sk],v=b[sk];
       if(u==null&&v==null)return 0; if(u==null)return 1; if(v==null)return -1;
       return (typeof u==='string'?u.localeCompare(v):u-v)*sd;});
-    document.querySelector('#tbl tbody').innerHTML=r.map(x=>`<tr class="${x.shipped?'ship':''}">
-      <td><b>${x.code}</b>${x.shipped?' <span class="chip">shipped</span>':''}</td>
+    document.querySelector('#tbl tbody').innerHTML=r.map(x=>`<tr class="${x.role==='anchor'?'ship anchor':x.shipped?'ship':''}">
+      <td><b>${x.code}</b></td>
+      <td>${x.role==='anchor'?'<span class="chip anchor">anchor &middot; &frac12;</span>'
+            :x.role==='bracket'?'<span class="chip">bracket &middot; 1&frasl;22</span>':'<span class="dim">&mdash;</span>'}</td>
       <td>${x.name}</td><td>${x.family}</td><td>${x.mech}</td>
       <td>${f5(x.rmse)}</td><td>${f5(x.h0)}</td><td>${f5(x.h1)}</td><td>${f5(x.h2)}</td>
       <td>${f5(x.h3)}</td><td style="text-align:left">${x.obj}</td>

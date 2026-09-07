@@ -62,6 +62,9 @@ def diversity_points():
     return sorted(pts, key=lambda d: d["rmse"])
 
 
+ANCHOR_CODE = "A3x25"
+
+
 def main():
     cat = pd.read_csv(OUT / "catalogue" / "catalogue.csv") if (OUT / "catalogue" / "catalogue.csv").exists() \
         else pd.read_csv(ROOT / "catalogue" / "catalogue.csv")
@@ -79,7 +82,12 @@ def main():
                   "mae": None if pd.isna(pd.to_numeric(r.get("mae_mean"), errors="coerce"))
                          else round(float(r["mae_mean"]), 6),
                   "secs": None if pd.isna(r.get("secs")) else int(r["secs"]),
-                  "shipped": bool(r["shipped"])} for _, r in cat.iterrows()],
+                  "shipped": bool(r["shipped"]),
+                  # the anchor holds half the forecast by itself; the other eleven
+                  # shipped models share the other half, 1/22 each
+                  "role": ("anchor" if r["code"] == ANCHOR_CODE
+                           else "bracket" if bool(r["shipped"]) else None)}
+                 for _, r in cat.iterrows()],
         "families": [{"family": r["family"], "runs": int(r["runs"]),
                       "best": None if pd.isna(r["best"]) else round(float(r["best"]), 6),
                       "median": None if pd.isna(r["median"]) else round(float(r["median"]), 6),
