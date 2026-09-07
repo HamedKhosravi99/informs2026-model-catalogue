@@ -89,14 +89,19 @@ tr.ship td{background:color-mix(in srgb,var(--series-1) 9%,transparent)}
 <div class="tiles" id="tiles"></div>
 
 <h2>A member's value is not its score</h2>
-<p class="note">Each object by how good it is alone (horizontal) against how much its errors resemble
-the shipped bracket (vertical). <b>The useful direction is down, not left.</b> The three stock-flow
-models are the weakest in the set and the least correlated — and no substitute survived a replacement
-test. Hover any point.</p>
+<p class="note">The forecast is two halves. Eleven diverse models share one half — the
+<b>bracket</b>. A single model holds the other half by itself: the <b>anchor</b>, the same
+bi-directional GRU as two bracket members but averaged over 100 networks (25 seeds &times; 4
+snapshots), which makes it the most accurate and steadiest single object we have. The bracket
+supplies disagreement; the anchor holds the forecast still.</p>
+<p class="note">Below, each object sits by how good it is alone (horizontal) against how much its
+errors resemble the bracket (vertical). <b>The useful direction is down, not left.</b> The three
+stock-flow models are the weakest in the set and the least correlated — and no substitute survived
+a replacement test. Hover any point.</p>
 <div class="card">
   <div class="legend">
     <span><i style="background:var(--series-1)"></i>bracket member (shipped)</span>
-    <span><i style="background:var(--series-2)"></i>anchor <span class="dim">— 50% of the forecast</span></span>
+    <span><i style="background:var(--series-2)"></i>the anchor <span class="dim">— one model holding half the forecast</span></span>
     <span><i style="background:var(--series-3)"></i>tested, not admitted</span>
     <span><span style="color:var(--series-2)">&#9733;</span> the ensemble of all twelve</span>
   </div>
@@ -388,7 +393,8 @@ fetch('dashboard_data.json').then(r=>r.json()).then(D=>{
        <div><div class="v">${sel.length}</div><div class="k">models averaged</div></div></div>
        <div class="verdict">Best single model in your set: <b>${bestLab}</b> at ${f5(best)} —
        averaging ${mean<best?`beats it by ${((best-mean)*1e5).toFixed(1)}e-5`:`is <b>worse</b> by ${((mean-best)*1e5).toFixed(1)}e-5`}.
-       The shipped ensemble scores ${f5(D.extra.ens.rmse)} using a combination rule better than a plain mean.</div>`;};
+       The shipped ensemble scores ${f5(D.extra.ens.rmse)}: it gives the anchor half the weight on its
+       own and combines the other eleven by amplitude and shape rather than a plain mean.</div>`;};
    pk.addEventListener('change',render);
    const set=ids=>{pk.querySelectorAll('input').forEach(c=>c.checked=ids.includes(c.dataset.id));render();};
    document.getElementById('pick-ship').onclick=()=>set(D.extra.ens.members.concat(['a3x25']));

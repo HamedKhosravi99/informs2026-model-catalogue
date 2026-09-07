@@ -26,7 +26,7 @@ def diversity_points():
     fz = [FREEZE_SUB.get(m, m) for m in MEMBERS if m not in FREEZE_DROP] + FREEZE_ADD
     label = {"s62": "s62", "x9": "s51+snap", "s39": "s39", "i11w": "i11w", "f2": "f2",
              "x4": "s35@25", "p1b": "p1b", "ts2c": "PatchTST", "p1c": "p1c",
-             "r6corr": "r6corr", "s35w": "s35w", "a3x25": "A (anchor)"}
+             "r6corr": "r6corr", "s35w": "s35w", "a3x25": "A — the anchor"}
     cand = {"sx1": "XLinear", "sx2": "TSMixer", "sx3": "cond. flow", "sx4": "TimeXer",
             "ts1b": "DLinear", "ts3b": "iTransformer", "x11": "i11w@25", "x3": "i11@25",
             "s40": "s40 (dropped)", "f2_hurdle": "hurdle f2", "decay": "persistence"}
