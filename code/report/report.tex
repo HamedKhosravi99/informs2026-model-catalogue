@@ -7,6 +7,8 @@
 \usepackage{amsmath,amssymb}
 \usepackage{booktabs}
 \usepackage{array}
+\usepackage[normalem]{ulem}
+\newcommand{\meth}[1]{\uline{#1}}   % the method terms, underlined in the abstract
 \newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
 \usepackage{graphicx}
 \usepackage[table]{xcolor}
@@ -41,23 +43,23 @@
 \begin{abstract}\small
 \noindent We forecast hourly county Outage Severity Index (OSI) at four horizons
 for 63 counties never seen in training, through a two-wave March 2026 wind event.
-Rather than searching model space, we first measured \emph{how the residual error
+Rather than searching model space, we first measured \meth{how the residual error
 decomposes}, because that determines where attention is worth spending. The
 diagnosis --- computed before the later experiments, from cached out-of-fold
 predictions and without retraining --- puts the error at roughly $45\%$ county
-\emph{scale}, $37\%$ trajectory \emph{shape} and $17\%$ \emph{timing}, with no
+\meth{scale}, $37\%$ trajectory \meth{shape} and $17\%$ \meth{timing}, with no
 dominant mode, and finds that whatever a model still gets wrong about a county's
 overall magnitude is not recoverable from any legal feature we could construct
 (out-of-fold $R^2\!\approx\!0$; $-0.09$ with 219 features and boosted trees).
 That diagnosis was turned into falsifiable predictions for eight
-\emph{intervention families}, and 210 controlled models plus a further 28 paired
+\meth{intervention families}, and 210 controlled models plus a further 28 paired
 contrasts were used to test them. The resulting forecaster is an equal-weight
 $50/50$ blend of two halves --- eleven diverse models sharing one half, and a
-single high-variance-reduction model holding the other --- with \textbf{no
+single high-variance-reduction model holding the other --- with \meth{no
 fitted combination parameters}, scoring \textbf{0.00838} (mean of the
 four horizon RMSEs with the configuration choice itself nested; a reporting
-summary, not the official ranking statistic) against \textbf{0.01632} for
-all-zeros and \textbf{0.01110} for decayed persistence. The full ledger, the
+summary, not the official ranking statistic) against $0.01632$ for
+all-zeros and $0.01110$ for decayed persistence. The full ledger, the
 code, and an interactive dashboard over all 210 models are in the repository named
 in §\ref{sec:repro}.
 
