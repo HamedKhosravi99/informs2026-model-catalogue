@@ -9,11 +9,12 @@ and the code that produced all of it.
 All 210 runs, the quality-versus-diversity finding, the redundancy arcs, the
 selection-reversal slopegraph, and an ensemble builder you can drive yourself.
 
-That link is **already live**. It is served by GitHub Pages out of a separate
-public repository, [`informs2026-dashboard`](https://github.com/HamedKhosravi99/informs2026-dashboard),
-which contains nothing but the page itself. *This* repository — the code, the
-report and the full catalogue — stays private until 25 September 2026, once the
-competition deadline has passed. The identical page is committed here at
+That link is **live**. It is served by GitHub Pages out of a separate public
+repository, [`informs2026-dashboard`](https://github.com/HamedKhosravi99/informs2026-dashboard),
+which contains nothing but the page itself. This repository — the code, the
+report and the full catalogue — was private while the competition was open and
+became public on 25 September 2026, once the deadline had passed. The identical
+page is committed here at
 [`catalogue/dashboard.html`](catalogue/dashboard.html) — a single self-contained
 file with the data inlined, so it opens straight from disk with no server and no
 dependencies:
@@ -26,7 +27,7 @@ open informs2026-model-catalogue/catalogue/dashboard.html
 [**`catalogue.pdf`**](catalogue.pdf) in this root is the same record as a
 printable document.
 
-**This repository is private.** It contains no competition data. `DM_Train.csv`,
+**This repository contains no competition data.** `DM_Train.csv`,
 `DM_Test.csv`, `sample_submission.csv` and the organisers' PDFs are NDA-protected
 and are excluded by `.gitignore`; the only PDFs here are our own report and
 catalogue. Place the three competition CSVs in `code/` to run anything.
@@ -62,10 +63,10 @@ summary.
 magnitude against 54% for persistence. All figures are five-fold county-holdout
 cross-validation on the 239 training counties.
 
-## Going public on 25 September 2026
+## Going public — done 25 September 2026
 
-The report cites two URLs, and both are private until the deadline passes. Run
-these three commands on 25 September and both go live:
+The report cites two URLs. Both went live on 25 September 2026, once the
+deadline had passed, with these three commands:
 
 ```bash
 gh repo edit HamedKhosravi99/informs2026-model-catalogue --visibility public --accept-visibility-change-consequences
@@ -73,8 +74,8 @@ gh repo edit HamedKhosravi99/informs2026-dashboard --visibility public --accept-
 gh api -X POST repos/HamedKhosravi99/informs2026-dashboard/pages -f 'source[branch]=main' -f 'source[path]=/'
 ```
 
-The third command is the one that is easy to forget: **making the repository
-public does not by itself publish the page.** Pages is unpublished whenever the
+The third command was the one that was easy to forget: **making a repository
+public does not by itself publish its page.** Pages is unpublished whenever the
 repository goes private, so it has to be re-enabled explicitly, and until it is
 the URL returns a 404 no matter what the visibility says. Check `has_pages`, not
 the visibility flag:
